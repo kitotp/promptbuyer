@@ -8,7 +8,7 @@ function App() {
 
   return (
     <div className="text-white">
-      Hey, {user?.username}, your id: {user?.id}
+      Hey, {user?.username}, your id is: {user?.id}
     </div>
   )
 }
