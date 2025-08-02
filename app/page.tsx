@@ -1,3 +1,5 @@
+'use client'
+
 import { useTelegram } from "@/context/TelegramContext"
 
 function App() {
