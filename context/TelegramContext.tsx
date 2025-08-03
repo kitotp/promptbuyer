@@ -28,8 +28,6 @@ const TelegramContext = createContext<TelegramCtx>({
 export const TelegramProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<TgUser | null>(null);
     const [ip, setIp] = useState<string | null>(null);
-
-
     const [webApp, setWebApp] = useState<typeof window.Telegram.WebApp | null>(
         null,
     );
@@ -52,16 +50,18 @@ export const TelegramProvider = ({ children }: { children: ReactNode }) => {
 
         const tg = webapp.initDataUnsafe?.user ?? null;
         setUser(tg);
-
-        if (tg) {
-            fetch('api/users', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ id: tg.id, username: tg.username, ip: ip })
-            }).catch(console.error)
-        }
-
     }, []);
+
+    useEffect(() => {
+        if (!user || !ip || ip === 'error') return;
+
+        fetch('/api/users', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id: user.id, username: user.username, ip }),
+        }).catch(console.error);
+
+    }, [user, ip]);
 
     return (
         <TelegramContext.Provider value={{ user, webApp }}>
