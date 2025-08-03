@@ -9,8 +9,9 @@ const ProfilePage = () => {
 
     return (
         <>
-            <div>{dbUser?.username}</div>
-            <div>{dbUser?.balance}</div>
+            1231231
+            <p>{dbUser?.username}</p>
+            <p>{dbUser?.balance}</p>
         </>
     )
 }

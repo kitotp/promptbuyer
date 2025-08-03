@@ -1,31 +1,48 @@
-import supabase from "@/supabase";
-import { NextResponse } from "next/server";
+import supabase from '@/supabase';
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function POST(request: Request) {
-    const { user_id, username, ip } = (await request.json()) as { user_id: number, username: string, ip: string }
+export async function POST(req: NextRequest) {
+    const { user_id, username, ip } = (await req.json()) as {
+        user_id?: number;
+        username?: string;
+        ip?: string;
+    };
 
     if (!user_id || !ip) {
-        return NextResponse.json({ error: 'Missing id or ip of a person' }, { status: 400 })
+        return NextResponse.json({ error: 'Missing user_id or ip' }, { status: 400 });
     }
 
-    let { data: user } = await supabase
+    const { data: existingUser, error: selectError } = await supabase
         .from('users')
-        .select('ip')
-        .eq('ip', ip)
-        .maybeSingle()
+        .select('*')
+        .eq('user_id', user_id)
+        .maybeSingle();
+
+    if (selectError) {
+        return NextResponse.json({ error: selectError.message }, { status: 500 });
+    }
+
+    let user = existingUser;
 
     if (!user) {
         const { data: inserted, error: insErr } = await supabase
             .from('users')
-            .insert({ user_id, username, ip, balance: 0 })
+            .insert({
+                user_id,
+                username,
+                ip,
+                balance: 0,
+                tasks_completed: 0,
+            })
             .select()
             .single();
 
-        if (insErr)
+        if (insErr) {
             return NextResponse.json({ error: insErr.message }, { status: 500 });
+        }
 
         user = inserted;
     }
 
-    return NextResponse.json(user)
+    return NextResponse.json(user);
 }
