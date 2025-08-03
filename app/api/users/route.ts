@@ -8,13 +8,11 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Missing id or ip of a person' }, { status: 400 })
     }
 
-    let { data: user, error: selectError } = await supabase
+    let { data: user } = await supabase
         .from('users')
         .select('ip')
         .eq('ip', ip)
         .maybeSingle()
-
-    if (selectError) return NextResponse.json({ error: selectError.message }, { status: 500 });
 
     if (!user) {
         const { data: inserted, error: insErr } = await supabase
