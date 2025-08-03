@@ -27,9 +27,19 @@ const TelegramContext = createContext<TelegramCtx>({
 
 export const TelegramProvider = ({ children }: { children: ReactNode }) => {
     const [user, setUser] = useState<TgUser | null>(null);
+    const [ip, setIp] = useState<string | null>(null);
+
+
     const [webApp, setWebApp] = useState<typeof window.Telegram.WebApp | null>(
         null,
     );
+
+    useEffect(() => {
+        fetch('/api/ip')
+            .then(r => r.json())
+            .then(({ ip }) => setIp(ip))
+            .catch(() => setIp('error'));
+    }, []);
 
     useEffect(() => {
         const webapp = window.Telegram?.WebApp;
@@ -42,6 +52,14 @@ export const TelegramProvider = ({ children }: { children: ReactNode }) => {
 
         const tg = webapp.initDataUnsafe?.user ?? null;
         setUser(tg);
+
+        if (tg) {
+            fetch('api/users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: tg.id, username: tg.username, ip: ip })
+            }).catch(console.error)
+        }
 
     }, []);
 
