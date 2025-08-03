@@ -4,6 +4,7 @@ import "./globals.css";
 import { TelegramProvider } from "@/context/TelegramContext";
 import Script from "next/script";
 import Providers from "./providers";
+import Footer from "@/components/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,7 +37,14 @@ export default function RootLayout({
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <TelegramProvider >
           <Providers>
-            {children}
+            <div className="flex flex-col items-center">
+              <main id="main-content"
+                className={
+                  `flex-1 w-full max-w-[452px] m-auto px-4 pt-4 pb-[calc(var(--footer-height)+env(safe-area-inset-bottom))] pt-safe px-safe`}>
+                {children}
+              </main>
+              <Footer />
+            </div>
           </Providers>
         </TelegramProvider>
       </body>

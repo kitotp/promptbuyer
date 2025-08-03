@@ -8,28 +8,26 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Missing id or ip of a person' }, { status: 400 })
     }
 
-    const { data: existing, error: selectError } = await supabase
+    let { data: user, error: selectError } = await supabase
         .from('users')
         .select('ip')
         .eq('ip', ip)
         .maybeSingle()
 
-    if (selectError) {
-        return NextResponse.json({ error: selectError.message }, { status: 500 })
+    if (selectError) return NextResponse.json({ error: selectError.message }, { status: 500 });
+
+    if (!user) {
+        const { data: inserted, error: insErr } = await supabase
+            .from('users')
+            .insert({ user_id, username, ip, balance: 0 })
+            .select()
+            .single();
+
+        if (insErr)
+            return NextResponse.json({ error: insErr.message }, { status: 500 });
+
+        user = inserted;
     }
 
-    if (existing) {
-        return NextResponse.json({ status: 'exists', ip })
-    }
-
-    const { data: inserted, error: error } = await supabase
-        .from('users')
-        .insert({ user_id, username, ip })
-        .select()
-
-    if (error) {
-        return NextResponse.json({ error: error.message }, { status: 500 })
-    }
-
-    return NextResponse.json({ status: 'inserted', data: inserted })
+    return NextResponse.json(user)
 }

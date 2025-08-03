@@ -14,19 +14,29 @@ interface TgUser {
     username?: string;
 }
 
+interface DbUser {
+    id: number;
+    username: string;
+    balance: number;
+    tasks_completed: number
+}
+
 interface TelegramCtx {
-    user: TgUser | null;
+    tgUser: TgUser | null;
+    dbUser: DbUser | null;
     webApp: typeof window.Telegram.WebApp | null;
 }
 
 const TelegramContext = createContext<TelegramCtx>({
-    user: null,
+    tgUser: null,
+    dbUser: null,
     webApp: null,
 });
 
 
 export const TelegramProvider = ({ children }: { children: ReactNode }) => {
-    const [user, setUser] = useState<TgUser | null>(null);
+    const [dbUser, setDbUser] = useState<DbUser | null>(null)
+    const [tgUser, setTgUser] = useState<TgUser | null>(null);
     const [ip, setIp] = useState<string | null>(null);
     const [webApp, setWebApp] = useState<typeof window.Telegram.WebApp | null>(
         null,
@@ -49,22 +59,29 @@ export const TelegramProvider = ({ children }: { children: ReactNode }) => {
         webapp.expand();
 
         const tg = webapp.initDataUnsafe?.user ?? null;
-        setUser(tg);
+        setTgUser(tg);
     }, []);
 
     useEffect(() => {
-        if (!user || !ip || ip === 'error') return;
+        if (!tgUser || !ip || ip === 'error') return;
 
         fetch('/api/users', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ user_id: user.id, username: user.username, ip }),
-        }).catch(console.error);
+            body: JSON.stringify({
+                user_id: tgUser.id,
+                username: tgUser.username ?? null,
+                ip,
+            }),
+        })
+            .then(r => r.json())
+            .then(setDbUser)
+            .catch(console.error);
 
-    }, [user, ip]);
+    }, [tgUser, ip]);
 
     return (
-        <TelegramContext.Provider value={{ user, webApp }}>
+        <TelegramContext.Provider value={{ tgUser, dbUser, webApp }}>
             {children}
         </TelegramContext.Provider>
     );
