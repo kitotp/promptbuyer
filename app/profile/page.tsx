@@ -8,11 +8,13 @@ const ProfilePage = () => {
     const { dbUser } = useTelegram()
 
     return (
-        <>
-            1231231
-            <p>{dbUser?.username}</p>
-            <p>{dbUser?.balance}</p>
-        </>
+        <div className='flex flex-col items-center justify-center h-screen'>
+            <div className='w-[400px] items-center flex flex-col h-[400px] border border-black]'>
+                <p className='text-[20px]'>Username: {dbUser?.username}</p>
+                <p className='text-[20px]'>Balance: {dbUser?.balance}</p>
+                <button className='p-2 border border-black'>Вывести средства</button>
+            </div>
+        </div>
     )
 }
 
