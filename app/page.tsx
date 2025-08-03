@@ -8,7 +8,7 @@ export default function App() {
   return (
     <div className="text-white p-4 space-y-2">
       <p>
-        Hey, <b>{user?.username ?? 'anon'}</b>, your id is: <b>{user?.id ?? '–'}</b>
+        Hey, <b>{user?.username ?? 'anon'}</b>, your id is:: <b>{user?.id ?? '–'}</b>
       </p>
     </div>
   );
