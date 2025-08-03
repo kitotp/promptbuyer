@@ -58,7 +58,7 @@ export const TelegramProvider = ({ children }: { children: ReactNode }) => {
         fetch('/api/users', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id: user.id, username: user.username, ip }),
+            body: JSON.stringify({ user_id: user.id, username: user.username, ip }),
         }).catch(console.error);
 
     }, [user, ip]);

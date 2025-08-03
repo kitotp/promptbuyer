@@ -2,9 +2,9 @@ import supabase from "@/supabase";
 import { NextResponse } from "next/server";
 
 export async function POST(request: Request) {
-    const { id, username, ip } = (await request.json()) as { id: number, username: string, ip: string }
+    const { user_id, username, ip } = (await request.json()) as { user_id: number, username: string, ip: string }
 
-    if (!id || !ip) {
+    if (!user_id || !ip) {
         return NextResponse.json({ error: 'Missing id or ip of a person' }, { status: 400 })
     }
 
@@ -24,7 +24,7 @@ export async function POST(request: Request) {
 
     const { data: inserted, error: error } = await supabase
         .from('users')
-        .insert({ id, username, ip })
+        .insert({ user_id, username, ip })
         .select()
 
     if (error) {
