@@ -13,6 +13,7 @@ export default function TaskDetails() {
 
     const { taskId } = useParams<{ taskId: string }>();
 
+    const [submitting, setSubmitting] = useState(false);
     const queryClient = useQueryClient();
     const { tgUser } = useTelegram()
     const tasks = queryClient.getQueryData<Task[]>(['tasks', tgUser?.id]);
@@ -46,57 +47,70 @@ export default function TaskDetails() {
         );
     }
 
-    async function handleSubmitTask(file: File | null) {
-
-        if (!file) {
-            alert('No file provided')
-            return
-        }
-
-        const fileExt = file.name.split('.').pop()
-        const fileName = `${uuidv4()}.${fileExt}`
+    async function handleSubmitTask(file: File) {
+        // 1. загружаем в storage
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${uuidv4()}.${fileExt}`;
 
 
-        const { data: uploadData, error: uploadError } = await supabase
+        const { data: uploadData, error: uploadErr } = await supabase
             .storage
             .from('submitions')
-            .upload(fileName, file, { cacheControl: '3600', upsert: false })
+            .upload(fileName, file, { cacheControl: '3600', upsert: false });
 
-        if (!uploadData || uploadError) {
-            throw new Error('Error uploading image', uploadError)
+        if (uploadErr || !uploadData) {
+            throw new Error(uploadErr?.message || 'Не удалось загрузить файл');
         }
 
+        // 2. получаем публичный URL
         const { data: publicData } = await supabase
             .storage
             .from('submitions')
-            .getPublicUrl(fileName)
-        const image_url = publicData.publicUrl
+            .getPublicUrl(fileName);
 
-        const payload = {
-            task_id: task?.id,
-            image_url,
-            tg_username: tgUser?.username,
-            tg_user_id: tgUser?.id,
-        };
+        const image_url = publicData.publicUrl;
 
+        // 3. POST /api/task-submit
         const resp = await fetch('/api/task-submit', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
+            body: JSON.stringify({
+                task_id: task!.id,
+                image_url,
+                tg_username: tgUser!.username,
+                tg_user_id: tgUser!.id,
+            }),
         });
 
         const data = await resp.json();
+        if (!resp.ok) throw new Error(data.error || 'Server error');
 
-        if (resp.ok) {
-            if (data.result === 'approved') {
-                alert(`Задание подтверждено, получено +${data.reward} USDT`);
-            } else {
-                alert('Задание отклонено — проверь скриншот и попробуй снова (если логика позволяет).');
-            }
+        if (data.result === 'approved') {
+            alert(`Задание подтверждено, получено +${data.reward} USDT`);
         } else {
-            alert(data.error || 'Ошибка при отправке');
+            alert('Задание отклонено — проверь скриншот и попробуй ещё раз.');
         }
     }
+
+    async function onClickSend() {
+        if (!file || submitting) return;
+
+        try {
+            setSubmitting(true);
+            await handleSubmitTask(file);
+        } catch (err) {
+            console.error(err);
+            alert(
+                err instanceof Error
+                    ? err.message
+                    : 'Неизвестная ошибка при отправке'
+            );
+        } finally {
+            setSubmitting(false);
+        }
+    }
+
+
 
     return (
         <div className="mx-auto max-w-xl space-y-6 px-4 py-6">
@@ -158,10 +172,12 @@ export default function TaskDetails() {
                     />
                 </label>
 
-                <button disabled={!file} className="w-full rounded-xl bg-emerald-600 px-4 py-3 text-white shadow disabled:cursor-not-allowed disabled:bg-gray-400"
-                    onClick={() => file && handleSubmitTask(file)}
+                <button
+                    disabled={!file || submitting}
+                    onClick={onClickSend}
+                    className="w-full rounded-xl bg-emerald-600 px-4 py-3 text-white shadow disabled:cursor-not-allowed disabled:bg-gray-400"
                 >
-                    Отправить
+                    {submitting ? 'Отправляем…' : 'Отправить'}
                 </button>
             </section>
         </div>
