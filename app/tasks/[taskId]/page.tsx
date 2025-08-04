@@ -14,8 +14,8 @@ export default function TaskDetails() {
     const { taskId } = useParams<{ taskId: string }>();
 
     const queryClient = useQueryClient();
-    const tasks = queryClient.getQueryData<Task[]>(['tasks']);
     const { tgUser } = useTelegram()
+    const tasks = queryClient.getQueryData<Task[]>(['tasks', tgUser?.id]);
     const task = useMemo(
         () => {
             const idNum = Number(taskId);
