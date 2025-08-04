@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ error: tasksErr.message }, { status: 500 })
     }
 
-    let doneTaskIds = new Set<number>()
+    const doneTaskIds = new Set<number>()
     if (user_id) {
         const { data: subs, error: subsErr } = await supabase
             .from('user_task_submissions')
@@ -24,13 +24,13 @@ export async function GET(req: NextRequest) {
             .eq('user_id', user_id)
 
         if (!subsErr && subs) {
-            subs.forEach((s: any) => {
+            subs.forEach((s) => {
                 doneTaskIds.add(Number(s.task_id))
             })
         }
     }
 
-    const enriched = (tasks as any[]).map((t) => ({
+    const enriched = tasks.map((t) => ({
         ...t,
         done: doneTaskIds.has(t.id)
     }))

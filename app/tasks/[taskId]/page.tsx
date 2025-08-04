@@ -1,6 +1,5 @@
 'use client';
 
-import OpenAI from "openai";
 import supabase from "@/supabase";
 import { useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
