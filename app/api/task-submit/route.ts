@@ -1,4 +1,4 @@
-import supabase from "@/supabase";
+import { supabase } from "@/app/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 
