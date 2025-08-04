@@ -17,7 +17,7 @@ export default function TaskList() {
         enabled: !!tgUser,
     })
 
-    if (isLoading) return <p className="py-6">Загружаем задания…</p>
+    if (isLoading) return <p className="py-6">Загружаем задания</p>
     if (error) return <p className="py-6 text-red-500">{(error as Error).message}</p>
 
     return (
