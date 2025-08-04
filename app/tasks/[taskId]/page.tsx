@@ -7,8 +7,10 @@ import { useMemo, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import type Task from '@/types/task';
 import { useTelegram } from '@/context/TelegramContext';
+import { useRouter } from 'next/navigation';
 
 export default function TaskDetails() {
+    const router = useRouter()
     const { taskId } = useParams<{ taskId: string }>();
     const [file, setFile] = useState<File | null>(null);
     const [preview, setPreview] = useState<string | null>(null);
@@ -61,11 +63,12 @@ export default function TaskDetails() {
 
             if (!resp.ok) throw new Error(data.error || 'Server error');
 
-            alert(
-                data.result === 'approved'
-                    ? `Задание подтверждено, получено +${data.reward} USDT`
-                    : 'Задание отклонено — проверь скриншот.'
-            );
+            if (data.result === 'approved') {
+                alert(`Задание подтверждено, получено +${data.reward} USDT`);
+                router.push('/tasks');
+            } else {
+                alert('Задание отклонено — проверь скриншот.');
+            }
         } catch (err) {
             const e = err as Error;
             alert(e.message ?? 'Неизвестная ошибка при отправке');
