@@ -1,39 +1,35 @@
 'use client';
 
-import { supabase } from '@/app/lib/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';          // нужен только для выборки имени, можно удалить
 import type Task from '@/types/task';
-import { v4 as uuidv4 } from 'uuid'
-import { useTelegram } from "@/context/TelegramContext";
+import { useTelegram } from '@/context/TelegramContext';
 
 export default function TaskDetails() {
-
     const { taskId } = useParams<{ taskId: string }>();
-
-    const [submitting, setSubmitting] = useState(false);
-    const queryClient = useQueryClient();
-    const { tgUser } = useTelegram()
-    const tasks = queryClient.getQueryData<Task[]>(['tasks', tgUser?.id]);
-    const task = useMemo(
-        () => {
-            const idNum = Number(taskId);
-            if (isNaN(idNum)) return null;
-            return tasks?.find((t) => t.id === idNum) ?? null;
-        },
-        [tasks, taskId],
-    );
-
     const [file, setFile] = useState<File | null>(null);
     const [preview, setPreview] = useState<string | null>(null);
+    const [submitting, setSubmitting] = useState(false);
+
+    const queryClient = useQueryClient();
+    const { tgUser } = useTelegram();
+    const tasks = queryClient.getQueryData<Task[]>(['tasks', tgUser?.id]);
+
+    const task = useMemo(() => {
+        const idNum = Number(taskId);
+        if (isNaN(idNum)) return null;
+        return tasks?.find((t) => t.id === idNum) ?? null;
+    }, [tasks, taskId]);
 
     const handleSelect = (f: File | null) => {
         if (!f) return;
         setFile(f);
         setPreview(URL.createObjectURL(f));
     };
+
     const onDrop = (e: React.DragEvent<HTMLLabelElement>) => {
         e.preventDefault();
         handleSelect(e.dataTransfer.files?.[0] ?? null);
@@ -47,74 +43,42 @@ export default function TaskDetails() {
         );
     }
 
-    async function handleSubmitTask(file: File) {
-        // 1. загружаем в storage
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${uuidv4()}.${fileExt}`;
-
-
-        const { data: uploadData, error: uploadErr } = await supabase
-            .storage
-            .from('submitions')
-            .upload(fileName, file, { cacheControl: '3600', upsert: false });
-
-        if (uploadErr || !uploadData) {
-            throw new Error(uploadErr?.message || 'Не удалось загрузить файл');
-        }
-
-        // 2. получаем публичный URL
-        const { data: publicData } = await supabase
-            .storage
-            .from('submitions')
-            .getPublicUrl(fileName);
-
-        const image_url = publicData.publicUrl;
-
-        // 3. POST /api/task-submit
-        const resp = await fetch('/api/task-submit', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                task_id: task!.id,
-                image_url,
-                tg_username: tgUser!.username,
-                tg_user_id: tgUser!.id,
-            }),
-        });
-
-        const data = await resp.json();
-        if (!resp.ok) throw new Error(data.error || 'Server error');
-
-        if (data.result === 'approved') {
-            alert(`Задание подтверждено, получено +${data.reward} USDT`);
-        } else {
-            alert('Задание отклонено — проверь скриншот и попробуй ещё раз.');
-        }
-    }
-
     async function onClickSend() {
         if (!file || submitting) return;
 
         try {
             setSubmitting(true);
-            await handleSubmitTask(file);
-        } catch (err) {
-            console.error(err);
+
+            const form = new FormData();
+            form.append('file', file);
+            form.append('task_id', String(task?.id));
+            form.append('tg_username', String(tgUser?.username));
+            form.append('tg_user_id', String(tgUser!.id));
+            form.append('tmp_name', uuidv4());           // чтобы серверу не генерировать имя
+
+            const resp = await fetch('/api/task-submit', { method: 'POST', body: form });
+            const data = await resp.json();
+
+            if (!resp.ok) throw new Error(data.error || 'Server error');
+
             alert(
-                err instanceof Error
-                    ? err.message
-                    : 'Неизвестная ошибка при отправке'
+                data.result === 'approved'
+                    ? `Задание подтверждено, получено +${data.reward} USDT`
+                    : 'Задание отклонено — проверь скриншот.'
             );
+        } catch (e: any) {
+            alert(e.message ?? 'Неизвестная ошибка при отправке');
         } finally {
             setSubmitting(false);
         }
     }
 
-
-
     return (
         <div className="mx-auto max-w-xl space-y-6 px-4 py-6">
-            <Link href="/tasks" className="inline-block rounded-xl border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50">
+            <Link
+                href="/tasks"
+                className="inline-block rounded-xl border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50"
+            >
                 ← Назад
             </Link>
 
@@ -128,11 +92,17 @@ export default function TaskDetails() {
             </section>
 
             <section className="space-y-4">
-                <h2 className="text-lg font-medium">Загрузите скриншот ПОЛНОГО экрана где будет видно промпт, ответ на него от ИИ а также оставьте в поле ввода сообщений ваш ник телеграмм.</h2>
+                <h2 className="text-lg font-medium">
+                    Загрузите скриншот ПОЛНОГО экрана, где видно промпт, ответ ИИ,
+                    а&nbsp;также ваш ник Telegram в поле ввода.
+                </h2>
 
-                <label onDragOver={(e) => e.preventDefault()} onDrop={onDrop}
+                <label
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={onDrop}
                     className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed
-                     border-gray-300 p-6 text-center transition-colors hover:border-emerald-400 hover:bg-emerald-50/10">
+                     border-gray-300 p-6 text-center transition-colors hover:border-emerald-400 hover:bg-emerald-50/10"
+                >
                     {preview ? (
                         <img
                             src={preview}
@@ -156,10 +126,8 @@ export default function TaskDetails() {
                                 />
                             </svg>
                             <span className="text-sm">
-                                Перетащите фото сюда или&nbsp;
-                                <span className="font-medium text-emerald-600 underline">
-                                    выберите&nbsp;файл
-                                </span>
+                                Перетащите файл сюда или&nbsp;
+                                <span className="font-medium text-emerald-600 underline">выберите</span>
                             </span>
                         </>
                     )}
