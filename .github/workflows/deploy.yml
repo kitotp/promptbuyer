@@ -9,8 +9,8 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-      SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
 
@@ -25,11 +25,7 @@ jobs:
 
       - name: Install dependencies
         run: npm ci              
-      
-      - run:
-          echo "NEXT_PUBLIC_SUPABASE_URL=$SUPABASE_URL"   >> .env.local
-          echo "NEXT_PUBLIC_SUPABASE_SERVICE_KEY=$SUPABASE_SERVICE_KEY"   >> .env.local
-          echo "OPENAI_API_KEY=$OPENAI_API_KEY >> .env.local
+        
 
       - name: Build project
         run: npm run build
