@@ -4,7 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';          // нужен только для выборки имени, можно удалить
+import { v4 as uuidv4 } from 'uuid';
 import type Task from '@/types/task';
 import { useTelegram } from '@/context/TelegramContext';
 
@@ -52,12 +52,12 @@ export default function TaskDetails() {
             const form = new FormData();
             form.append('file', file);
             form.append('task_id', String(task?.id));
-            form.append('tg_username', String(tgUser?.username));
-            form.append('tg_user_id', String(tgUser!.id));
-            form.append('tmp_name', uuidv4());           // чтобы серверу не генерировать имя
+            form.append('tg_username', tgUser?.username ?? '');
+            form.append('tg_user_id', String(tgUser?.id ?? ''));
+            form.append('tmp_name', uuidv4());
 
             const resp = await fetch('/api/task-submit', { method: 'POST', body: form });
-            const data = await resp.json();
+            const data = (await resp.json()) as { result: string; reward: number; error?: string };
 
             if (!resp.ok) throw new Error(data.error || 'Server error');
 
@@ -66,9 +66,9 @@ export default function TaskDetails() {
                     ? `Задание подтверждено, получено +${data.reward} USDT`
                     : 'Задание отклонено — проверь скриншот.'
             );
-        } catch (e: unknown) {
-            const err = e as Error;
-            alert(err.message ?? 'Неизвестная ошибка при отправке');
+        } catch (err) {
+            const e = err as Error;
+            alert(e.message ?? 'Неизвестная ошибка при отправке');
         } finally {
             setSubmitting(false);
         }
@@ -94,8 +94,7 @@ export default function TaskDetails() {
 
             <section className="space-y-4">
                 <h2 className="text-lg font-medium">
-                    Загрузите скриншот ПОЛНОГО экрана, где видно промпт, ответ ИИ,
-                    а&nbsp;также ваш ник Telegram в поле ввода.
+                    Загрузите скриншот ПОЛНОГО экрана, где видно промпт, ответ ИИ и&nbsp;ваш ник Telegram.
                 </h2>
 
                 <label
@@ -105,11 +104,7 @@ export default function TaskDetails() {
                      border-gray-300 p-6 text-center transition-colors hover:border-emerald-400 hover:bg-emerald-50/10"
                 >
                     {preview ? (
-                        <img
-                            src={preview}
-                            alt="preview"
-                            className="h-40 w-auto rounded-lg object-contain"
-                        />
+                        <img src={preview} alt="preview" className="h-40 w-auto rounded-lg object-contain" />
                     ) : (
                         <>
                             <svg
