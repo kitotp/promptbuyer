@@ -66,8 +66,9 @@ export default function TaskDetails() {
                     ? `Задание подтверждено, получено +${data.reward} USDT`
                     : 'Задание отклонено — проверь скриншот.'
             );
-        } catch (e: any) {
-            alert(e.message ?? 'Неизвестная ошибка при отправке');
+        } catch (e: unknown) {
+            const err = e as Error;
+            alert(err.message ?? 'Неизвестная ошибка при отправке');
         } finally {
             setSubmitting(false);
         }
