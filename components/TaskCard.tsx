@@ -1,3 +1,4 @@
+// components/TaskCard.tsx
 import React from 'react'
 import type Task from '@/types/task'
 import Link from 'next/link'
@@ -14,18 +15,13 @@ interface Props {
 const TaskCard = ({ task, done = false }: Props) => {
     const content = (
         <>
-            <Link
-                href={`/tasks/${task.id}`}
-                className="w-full max-w-md p-4 border rounded-lg hover:bg-gray-50"
-            >
-                <h2 className="font-bold text-lg">{task.title}</h2>
-                <p className="text-sm text-muted-foreground line-clamp-2">
-                    {task.description}
-                </p>
-                <span className="text-emerald-500 font-semibold">
-                    +{task.reward} USDT
-                </span>
-            </Link>
+            <h2 className="font-bold text-lg">{task.title}</h2>
+            <p className="text-sm text-muted-foreground line-clamp-2">
+                {task.description}
+            </p>
+            <span className="text-emerald-500 font-semibold">
+                +{task.reward} USDT
+            </span>
         </>
     )
 
@@ -46,7 +42,6 @@ const TaskCard = ({ task, done = false }: Props) => {
             {content}
         </Link>
     )
-
 }
 
 export default TaskCard
