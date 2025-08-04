@@ -94,7 +94,7 @@ export default function TaskDetails() {
 
             <section className="space-y-4">
                 <h2 className="text-lg font-medium">
-                    Загрузите скриншот ПОЛНОГО экрана, где видно промпт, ответ ИИ и&nbsp;ваш ник Telegram.
+                    Загрузите скриншот ПОЛНОГО экрана, где видно промпт, ответ ИИ и&nbsp;ваш ник Telegram в поле ввода сообщения.
                 </h2>
 
                 <label

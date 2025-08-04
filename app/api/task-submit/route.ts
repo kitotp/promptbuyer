@@ -21,7 +21,6 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Bad payload' }, { status: 400 });
         }
 
-        /* -------- upload to Storage -------- */
         const ext = file.name.split('.').pop();
         const fileName = `${tmpName ?? uuidv4()}.${ext}`;
 
@@ -39,7 +38,6 @@ export async function POST(req: NextRequest) {
 
         const image_url = pub.publicUrl;
 
-        /* -------- fetch task -------- */
         const { data: task, error: tErr } = await supabase
             .from('tasks')
             .select('*')
@@ -50,7 +48,6 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Задание не найдено' }, { status: 404 });
         }
 
-        /* -------- OpenAI vision check -------- */
         const prompt = `Does the image contain a ChatGPT page with a '${tg_username}' in an input form and a prompt ${task.copy_text} already written as a message and AI has responded to it? Answer only yes or no.`;
 
         const completion = await openai.chat.completions.create({
@@ -71,13 +68,15 @@ export async function POST(req: NextRequest) {
             ?.toLowerCase()
             ?.startsWith('yes');
 
-        /* -------- store submission -------- */
-        const { error: insErr } = await supabase
-            .from('user_task_submissions')
-            .insert({ user_id: tg_user_id, task_id });
+        if (approved) {
+            /* -------- store submission -------- */
+            const { error: insErr } = await supabase
+                .from('user_task_submissions')
+                .insert({ user_id: tg_user_id, task_id });
 
-        if (insErr) {
-            return NextResponse.json({ error: 'Не удалось сохранить сабмишн' }, { status: 500 });
+            if (insErr) {
+                return NextResponse.json({ error: 'Не удалось сохранить сабмишн' }, { status: 500 });
+            }
         }
 
         return NextResponse.json({
