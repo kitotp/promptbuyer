@@ -64,8 +64,12 @@ export default function TaskDetails() {
             if (!resp.ok) throw new Error(data.error || 'Server error');
 
             if (data.result === 'approved') {
+                queryClient.setQueryData<Task[]>(['tasks', tgUser?.id], (prev) =>
+                    prev ? prev.map((t) => (t.id === task?.id ? { ...t, done: true } : t)) : prev);
+
                 alert(`Задание подтверждено, получено +${data.reward} USDT`);
-                router.push('/tasks');
+                router.push('/tasks')
+                return;
             } else {
                 alert('Задание отклонено — проверь скриншот.');
             }
