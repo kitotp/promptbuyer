@@ -1,15 +1,39 @@
 import supabase from "@/supabase";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 
-export async function GET() {
-    const { data, error } = await supabase
+export async function GET(req: NextRequest) {
+
+    const url = req.nextUrl
+    const userIdParam = url.searchParams.get('user_id')
+    const user_id = userIdParam ? Number(userIdParam) : null
+
+    const { data: tasks, error: tasksErr } = await supabase
         .from('tasks')
         .select('*')
 
-    if (error) {
-        return NextResponse.json({ error: error.message }, { status: 500 })
+    if (tasksErr) {
+        return NextResponse.json({ error: tasksErr.message }, { status: 500 })
     }
 
-    return NextResponse.json(data)
+    let doneTaskIds = new Set<number>()
+    if (user_id) {
+        const { data: subs, error: subsErr } = await supabase
+            .from('user_task_submissions')
+            .select('task_id')
+            .eq('user_id', user_id)
+
+        if (!subsErr && subs) {
+            subs.forEach((s: any) => {
+                doneTaskIds.add(Number(s.task_id))
+            })
+        }
+    }
+
+    const enriched = (tasks as any[]).map((t) => ({
+        ...t,
+        done: doneTaskIds.has(t.id)
+    }))
+
+    return NextResponse.json(enriched)
 }

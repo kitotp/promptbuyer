@@ -2,8 +2,8 @@ import { queryOptions } from "@tanstack/react-query";
 import type Task from "@/types/task";
 
 
-export async function fetchTasks(): Promise<Task[]> {
-    const res = await fetch('/api/tasks');
+export async function fetchTasks(userId: number): Promise<(Task & { done: boolean })[]> {
+    const res = await fetch(`/api/tasks?user_id=${userId}`);
 
     if (!res.ok) {
         const { error } = await res.json();
@@ -12,7 +12,3 @@ export async function fetchTasks(): Promise<Task[]> {
 
     return res.json()
 }
-export const tasksQuery = queryOptions({
-    queryKey: ['tasks'],
-    queryFn: fetchTasks
-})
