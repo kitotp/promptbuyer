@@ -1,31 +1,29 @@
 'use client'
 
 import { useTelegram } from '@/context/TelegramContext'
-import React, { useState } from 'react'
+import React from 'react'
 
 const ProfilePage = () => {
 
     const { dbUser } = useTelegram()
 
     async function handleWithdraw() {
-        try {
 
-            const res = await fetch('/api/withdraw', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    currency: 'TON',
-                    address: 'UQBNn5k1jFubA4cgGCwbzdZkQCOZC90cp-RqT0M0VgQIeQdr',
-                    amount: 0.5
-                })
-            });
 
-            const data = await res.json();
-            if (!res.ok) throw new Error(data.error);
-            alert('✅ Выплата создана! ID: ' + data.data?.txn_id);
-        } catch (e: any) {
-            alert('❌ Ошибка вывода: ' + e.message);
-        }
+        const res = await fetch('/api/withdraw', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                currency: 'TON',
+                address: 'UQBNn5k1jFubA4cgGCwbzdZkQCOZC90cp-RqT0M0VgQIeQdr',
+                amount: 0.5
+            })
+        });
+
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error);
+        alert('✅ Выплата создана! ID: ' + data.data?.txn_id);
+
     }
 
     return (

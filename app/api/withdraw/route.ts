@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-export async function POST(req: Request) {
+export async function POST() {
     // тело запроса от клиента { address, amount, currency }
     const currency = 'TON'
     const toAddress = 'UQBNn5k1jFubA4cgGCwbzdZkQCOZC90cp-RqT0M0VgQIeQdr'  // адрес пользователя
