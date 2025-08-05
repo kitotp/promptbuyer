@@ -10,34 +10,21 @@ const ProfilePage = () => {
     async function handleWithdraw() {
         try {
 
-            /* параметры вывода ---------------------------------------------- */
-            const currency = 'TON'
-            const toAddress = 'UQBNn5k1jFubA4cgGCwbzdZkQCOZC90cp-RqT0M0VgQIeQdr'  // адрес пользователя
-            const amount = 0.5   // сколько выводим
-            const apiKey = 'JTc3ayf4yyiooAXhYAHMmfHIsaRx_S3ueY9K6VOgUMjz3dZgUDNCZAemR1u2Ki0u'
+            const res = await fetch('/api/withdraw', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    currency: 'TON',
+                    address: 'UQBNn5k1jFubA4cgGCwbzdZkQCOZC90cp-RqT0M0VgQIeQdr',
+                    amount: 0.5
+                })
+            });
 
-            const url = new URL('https://api.plisio.net/api/v1/operations/withdraw')
-            url.searchParams.set('currency', currency)
-            url.searchParams.set('type', 'cash_out')
-            url.searchParams.set('to', toAddress)
-            url.searchParams.set('amount', amount.toString())
-            url.searchParams.set('api_key', apiKey!)
-
-            const res = await fetch(url.toString(), { method: 'GET' })
-
-            if (!res.ok) {
-                const txt = await res.text()
-                console.error('Plisio error:', txt)
-                alert('❌ Платёж отклонён: ' + txt)
-                return
-            }
-
-            const data = await res.json()
-            console.log('Payout created:', data)
-            alert('✅ Выплата создана! ID: ' + data.data?.txn_id)
-        } catch (e) {
-            console.error(e)
-            alert('❌ Ошибка запроса')
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error);
+            alert('✅ Выплата создана! ID: ' + data.data?.txn_id);
+        } catch (e: any) {
+            alert('❌ Ошибка вывода: ' + e.message);
         }
     }
 
