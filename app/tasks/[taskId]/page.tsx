@@ -17,7 +17,7 @@ export default function TaskDetails() {
     const [submitting, setSubmitting] = useState(false);
 
     const queryClient = useQueryClient();
-    const { tgUser } = useTelegram();
+    const { tgUser, dbUser } = useTelegram();
     const tasks = queryClient.getQueryData<Task[]>(['tasks', tgUser?.id]);
 
     const task = useMemo(() => {
@@ -59,15 +59,20 @@ export default function TaskDetails() {
             form.append('tmp_name', uuidv4());
 
             const resp = await fetch('/api/task-submit', { method: 'POST', body: form });
-            const data = (await resp.json()) as { result: string; reward: number; error?: string };
+            const { result, reward, balance, error } = (await resp.json()) as { result: string; reward: number; balance?: number; error?: string };
 
-            if (!resp.ok) throw new Error(data.error || 'Server error');
+            if (!resp.ok) throw new Error(error || 'Server error');
 
-            if (data.result === 'approved') {
+            if (result === 'approved') {
                 queryClient.setQueryData<Task[]>(['tasks', tgUser?.id], (prev) =>
                     prev ? prev.map((t) => (t.id === task?.id ? { ...t, done: true } : t)) : prev);
 
-                alert(`Задание подтверждено, получено +${data.reward} USDT`);
+                if (balance !== undefined) {
+                    queryClient.setQueryData(['user', tgUser?.id], (prev: any) =>
+                        prev ? { ...prev, balance } : prev);
+                }
+
+                alert(`Задание подтверждено, получено +${reward} USDT`);
                 router.push('/tasks')
                 return;
             } else {

@@ -78,14 +78,16 @@ export async function POST(req: NextRequest) {
                 return NextResponse.json({ error: 'Не удалось сохранить сабмишн' }, { status: 500 });
             }
 
-            // const { error: updErr } = await supabase
-            //     .from('users')
-            //     .update({})                       // тело пустое — нужны только инкременты
-            //     .eq('id', tg_user_id)
-            //     .increment({
-            //         balance: task.reward,           // прибавляем reward
-            //         tasks_completed: 1,             // и счётчик выполненных
-            //     });
+            const { data: balance, error: rpcErr } = await supabase
+                .rpc('increment_balance', { p_user_id: tg_user_id, p_reward: task.reward })
+
+            if (rpcErr) return NextResponse.json({ error: 'Не удалось обновить баланс' }, { status: 500 })
+
+            return NextResponse.json({
+                result: 'approved',
+                reward: task.reward,
+                balance: balance
+            })
         }
 
         return NextResponse.json({
