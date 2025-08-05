@@ -2,7 +2,9 @@ import React from 'react'
 
 const page = () => {
     return (
-        <div>page</div>
+        <div className='flex flex-col items-center h-screen'>
+            <h1 className='font-bold text-[24px]'>Список заданий</h1>
+        </div>
     )
 }
 
