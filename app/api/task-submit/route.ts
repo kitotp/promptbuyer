@@ -77,6 +77,15 @@ export async function POST(req: NextRequest) {
             if (insErr) {
                 return NextResponse.json({ error: 'Не удалось сохранить сабмишн' }, { status: 500 });
             }
+
+            // const { error: updErr } = await supabase
+            //     .from('users')
+            //     .update({})                       // тело пустое — нужны только инкременты
+            //     .eq('id', tg_user_id)
+            //     .increment({
+            //         balance: task.reward,           // прибавляем reward
+            //         tasks_completed: 1,             // и счётчик выполненных
+            //     });
         }
 
         return NextResponse.json({
