@@ -1,6 +1,5 @@
 'use client'
 
-import { useDbUser } from '@/app/queries/userQuery';
 
 import {
     createContext,
@@ -15,7 +14,7 @@ interface TgUser {
     username?: string;
 }
 
-export type DbUser = {
+interface DbUser {
     id: number;
     username: string;
     balance: number;
@@ -25,7 +24,6 @@ export type DbUser = {
 interface TelegramCtx {
     tgUser: TgUser | null;
     dbUser: DbUser | null;
-    ip: string | null;
     webApp: typeof window.Telegram.WebApp | null;
 }
 
@@ -37,6 +35,7 @@ const TelegramContext = createContext<TelegramCtx>({
 
 
 export const TelegramProvider = ({ children }: { children: ReactNode }) => {
+    const [dbUser, setDbUser] = useState<DbUser | null>(null)
     const [tgUser, setTgUser] = useState<TgUser | null>(null);
     const [ip, setIp] = useState<string | null>(null);
     const [webApp, setWebApp] = useState<typeof window.Telegram.WebApp | null>(
@@ -63,8 +62,23 @@ export const TelegramProvider = ({ children }: { children: ReactNode }) => {
         setTgUser(tg);
     }, []);
 
+    useEffect(() => {
+        if (!tgUser || !ip || ip === 'error') return;
 
-    const { data: dbUser } = useDbUser(tgUser?.id, ip);
+        fetch('/api/users', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                user_id: tgUser.id,
+                username: tgUser.username ?? null,
+                ip,
+            }),
+        })
+            .then(r => r.json())
+            .then(setDbUser)
+            .catch(console.error);
+
+    }, [tgUser, ip]);
 
     return (
         <TelegramContext.Provider value={{ tgUser, dbUser, webApp }}>

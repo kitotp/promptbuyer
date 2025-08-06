@@ -8,7 +8,6 @@ import { v4 as uuidv4 } from 'uuid';
 import type Task from '@/types/task';
 import { useTelegram } from '@/context/TelegramContext';
 import { useRouter } from 'next/navigation';
-import type { DbUser } from '@/context/TelegramContext';
 
 export default function TaskDetails() {
     const router = useRouter()
@@ -60,7 +59,7 @@ export default function TaskDetails() {
             form.append('tmp_name', uuidv4());
 
             const resp = await fetch('/api/task-submit', { method: 'POST', body: form });
-            const { result, reward, error } = (await resp.json()) as { result: string; reward: number; balance?: number; error?: string };
+            const { result, reward, balance, error } = (await resp.json()) as { result: string; reward: number; balance?: number; error?: string };
 
             if (!resp.ok) throw new Error(error || 'Server error');
 
@@ -68,9 +67,10 @@ export default function TaskDetails() {
                 queryClient.setQueryData<Task[]>(['tasks', tgUser?.id], (prev) =>
                     prev ? prev.map((t) => (t.id === task?.id ? { ...t, done: true } : t)) : prev);
 
-                queryClient.setQueryData<DbUser>(['dbUser', tgUser?.id, ip], prev =>
-                    prev ? { ...prev, balance: prev.balance + reward } : prev
-                  );
+                if (balance !== undefined) {
+                    queryClient.setQueryData(['user', tgUser?.id], prev =>
+                      prev ? { ...prev, balance } : prev);
+                  }
 
                 alert(`Задание подтверждено, получено +${reward} USDT`);
                 router.push('/tasks')
