@@ -7,13 +7,6 @@ const ProfilePage = () => {
 
     const { dbUser } = useTelegram()
 
-    if (!dbUser) {
-        return (
-          <div className="flex h-screen items-center justify-center">
-            Загружаем профиль…
-          </div>
-        )
-      }
     async function handleWithdraw() {
 
 
