@@ -82,9 +82,9 @@ export const TelegramProvider = ({ children }: { children: ReactNode }) => {
 
     const {data: dbUser} = useQuery({
         queryKey: ['dbUser', tgUser?.id],
-        enabled: !!tgUser && !!ip && ip != 'error',
+        enabled: !!tgUser && !!ip && ip !== 'error',
         queryFn: () => 
-            fetch('api/users', {
+            fetch('/api/users', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json'},
                 body: JSON.stringify({
