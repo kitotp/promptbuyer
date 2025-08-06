@@ -17,7 +17,7 @@ export default function TaskDetails() {
     const [submitting, setSubmitting] = useState(false);
 
     const queryClient = useQueryClient();
-    const { tgUser } = useTelegram();
+    const { tgUser,dbUser } = useTelegram();
     const tasks = queryClient.getQueryData<Task[]>(['tasks', tgUser?.id]);
 
     const task = useMemo(() => {
@@ -66,11 +66,6 @@ export default function TaskDetails() {
             if (result === 'approved') {
                 queryClient.setQueryData<Task[]>(['tasks', tgUser?.id], (prev) =>
                     prev ? prev.map((t) => (t.id === task?.id ? { ...t, done: true } : t)) : prev);
-
-                if (balance !== undefined) {
-                    queryClient.setQueryData(['user', tgUser?.id], (prev) =>
-                        prev ? { ...prev, balance } : prev);
-                }
 
                 alert(`Задание подтверждено, получено +${reward} USDT`);
                 router.push('/tasks')
