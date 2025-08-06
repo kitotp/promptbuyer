@@ -35,8 +35,9 @@ export default function RootLayout({
         />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <Providers>
         <TelegramProvider >
-          <Providers>
+          
             <div className="flex flex-col items-center">
               <main id="main-content"
                 className={
@@ -45,8 +46,9 @@ export default function RootLayout({
               </main>
               <Footer />
             </div>
-          </Providers>
+          
         </TelegramProvider>
+        </Providers>
       </body>
     </html>
   );

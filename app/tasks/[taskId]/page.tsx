@@ -17,7 +17,7 @@ export default function TaskDetails() {
     const [submitting, setSubmitting] = useState(false);
 
     const queryClient = useQueryClient();
-    const { tgUser,dbUser } = useTelegram();
+    const { tgUser } = useTelegram();
     const tasks = queryClient.getQueryData<Task[]>(['tasks', tgUser?.id]);
 
     const task = useMemo(() => {
@@ -59,7 +59,7 @@ export default function TaskDetails() {
             form.append('tmp_name', uuidv4());
 
             const resp = await fetch('/api/task-submit', { method: 'POST', body: form });
-            const { result, reward, balance, error } = (await resp.json()) as { result: string; reward: number; balance?: number; error?: string };
+            const { result, reward, error } = (await resp.json()) as { result: string; reward: number; balance?: number; error?: string };
 
             if (!resp.ok) throw new Error(error || 'Server error');
 
