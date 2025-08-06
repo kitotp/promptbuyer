@@ -8,6 +8,7 @@ import { v4 as uuidv4 } from 'uuid';
 import type Task from '@/types/task';
 import { useTelegram } from '@/context/TelegramContext';
 import { useRouter } from 'next/navigation';
+import type { DbUser } from '@/context/TelegramContext';
 
 export default function TaskDetails() {
     const router = useRouter()
@@ -66,6 +67,10 @@ export default function TaskDetails() {
             if (result === 'approved') {
                 queryClient.setQueryData<Task[]>(['tasks', tgUser?.id], (prev) =>
                     prev ? prev.map((t) => (t.id === task?.id ? { ...t, done: true } : t)) : prev);
+
+                queryClient.setQueryData<DbUser>(['dbUser', tgUser?.id], prev =>
+                    prev ? { ...prev, balance: prev.balance + reward } : prev
+                  );
 
                 alert(`Задание подтверждено, получено +${reward} USDT`);
                 router.push('/tasks')
