@@ -5,31 +5,7 @@ import React from 'react'
 
 const ProfilePage = () => {
 
-    const { dbUser, dbUserLoading, dbUserError } = useTelegram();
-
-  if (dbUserLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        Загружаем профиль…
-      </div>
-    );
-  }
-
-  if (dbUserError) {
-    return (
-      <div className="flex h-screen items-center justify-center text-red-600">
-        Ошибка при загрузке профиля
-      </div>
-    );
-  }
-
-  if (!dbUser) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        Профиль не найден
-      </div>
-    );
-  }
+    const { dbUser } = useTelegram()
 
     async function handleWithdraw() {
 

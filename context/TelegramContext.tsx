@@ -1,7 +1,6 @@
 'use client'
 
 
-import { useQuery } from '@tanstack/react-query';
 import {
     createContext,
     useContext,
@@ -24,23 +23,19 @@ interface DbUser {
 
 interface TelegramCtx {
     tgUser: TgUser | null;
-    dbUser: DbUser | null | undefined;
+    dbUser: DbUser | null;
     webApp: typeof window.Telegram.WebApp | null;
-    dbUserLoading: boolean;
-  dbUserError: unknown;
 }
 
 const TelegramContext = createContext<TelegramCtx>({
     tgUser: null,
     dbUser: null,
     webApp: null,
-    dbUserLoading: false,
-  dbUserError: null,
-    
 });
 
 
 export const TelegramProvider = ({ children }: { children: ReactNode }) => {
+    const [dbUser, setDbUser] = useState<DbUser | null>(null)
     const [tgUser, setTgUser] = useState<TgUser | null>(null);
     const [ip, setIp] = useState<string | null>(null);
     const [webApp, setWebApp] = useState<typeof window.Telegram.WebApp | null>(
@@ -67,49 +62,26 @@ export const TelegramProvider = ({ children }: { children: ReactNode }) => {
         setTgUser(tg);
     }, []);
 
-    // useEffect(() => {
-    //     if (!tgUser || !ip || ip === 'error') return;
+    useEffect(() => {
+        if (!tgUser || !ip || ip === 'error') return;
 
-    //     fetch('/api/users', {
-    //         method: 'POST',
-    //         headers: { 'Content-Type': 'application/json' },
-    //         body: JSON.stringify({
-    //             user_id: tgUser.id,
-    //             username: tgUser.username ?? null,
-    //             ip,
-    //         }),
-    //     })
-    //         .then(r => r.json())
-    //         .then(setDbUser)
-    //         .catch(console.error);
-
-    // }, [tgUser, ip]);
-
-    const {
-        data: dbUser,
-        isLoading: dbUserLoading,
-        isError: dbUserError,
-      } = useQuery<DbUser | null>({
-        queryKey: ['dbUser', tgUser?.id, ip],        
-        enabled: !!tgUser && !!ip && ip !== 'error',
-        queryFn: ({ queryKey }) => {
-          const [, userId, clientIp] = queryKey as [string, number, string];
-          return fetch('/api/users', {
+        fetch('/api/users', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              user_id:  userId,
-              username: tgUser!.username ?? null,
-              ip:       clientIp,
+                user_id: tgUser.id,
+                username: tgUser.username ?? null,
+                ip,
             }),
-          }).then(r => r.json() as Promise<DbUser>);
-        },
-        initialData: null,
-        staleTime: 60_000,
-      });
+        })
+            .then(r => r.json())
+            .then(setDbUser)
+            .catch(console.error);
+
+    }, [tgUser, ip]);
 
     return (
-        <TelegramContext.Provider value={{ tgUser, dbUser, webApp, dbUserLoading, dbUserError }}>
+        <TelegramContext.Provider value={{ tgUser, dbUser, webApp }}>
             {children}
         </TelegramContext.Provider>
     );
