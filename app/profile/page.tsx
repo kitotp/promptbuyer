@@ -14,7 +14,6 @@ export default function ProfilePage() {
     const [saving, setSaving] = useState(false)
     const [message, setMessage] = useState<string | null>(null)
   
-    // При загрузке заполняем поле, если в БД уже есть адрес
     useEffect(() => {
       if (dbUser?.wallet) {
         setWallet(dbUser.wallet)
@@ -25,7 +24,6 @@ export default function ProfilePage() {
       return <div>Загрузка профиля…</div>
     }
   
-    // Сохранение адреса
     async function handleSave(e: React.FormEvent) {
       e.preventDefault()
       if (!tgUser) return
@@ -51,7 +49,6 @@ export default function ProfilePage() {
       }
     }
   
-    // Вывод средств
     async function handleWithdraw() {
       if (!wallet) {
         alert('Сначала сохраните адрес кошелька')
@@ -79,9 +76,8 @@ export default function ProfilePage() {
       <div className="flex flex-col items-center justify-center h-screen space-y-6">
         <div className="w-[400px] border rounded p-6 flex flex-col space-y-4">
           <p className="text-lg"><strong>Username:</strong> {dbUser.username}</p>
-          <p className="text-lg"><strong>Balance:</strong> {dbUser.balance} USDT</p>
+          <p className="text-lg"><strong>Balance:</strong> {dbUser.balance} TON</p>
   
-          {/* Форма для ввода кошелька */}
           <form onSubmit={handleSave} className="flex flex-col space-y-2">
             <label className="text-sm font-medium">TON Wallet Address</label>
             <input
