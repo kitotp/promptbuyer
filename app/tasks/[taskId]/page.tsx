@@ -68,7 +68,7 @@ export default function TaskDetails() {
                 queryClient.setQueryData<Task[]>(['tasks', tgUser?.id], (prev) =>
                     prev ? prev.map((t) => (t.id === task?.id ? { ...t, done: true } : t)) : prev);
 
-                queryClient.setQueryData<DbUser>(['dbUser', tgUser?.id], prev =>
+                queryClient.setQueryData<DbUser>(['dbUser', tgUser?.id, ip], prev =>
                     prev ? { ...prev, balance: prev.balance + reward } : prev
                   );
 

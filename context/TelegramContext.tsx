@@ -25,6 +25,7 @@ export type DbUser = {
 interface TelegramCtx {
     tgUser: TgUser | null;
     dbUser: DbUser | null;
+    ip: string | null;
     webApp: typeof window.Telegram.WebApp | null;
 }
 
