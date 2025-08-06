@@ -14,7 +14,7 @@ interface TgUser {
     username?: string;
 }
 
-interface DbUser {
+export type DbUser = {
     id: number;
     username: string;
     balance: number;

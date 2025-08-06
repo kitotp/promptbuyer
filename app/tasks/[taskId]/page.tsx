@@ -1,5 +1,6 @@
 'use client';
 
+import { DbUser } from '@/context/TelegramContext';
 import { useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
@@ -17,7 +18,7 @@ export default function TaskDetails() {
     const [submitting, setSubmitting] = useState(false);
 
     const queryClient = useQueryClient();
-    const { tgUser } = useTelegram();
+    const { tgUser, webApp } = useTelegram()
     const tasks = queryClient.getQueryData<Task[]>(['tasks', tgUser?.id]);
 
     const task = useMemo(() => {
@@ -67,9 +68,10 @@ export default function TaskDetails() {
                 queryClient.setQueryData<Task[]>(['tasks', tgUser?.id], (prev) =>
                     prev ? prev.map((t) => (t.id === task?.id ? { ...t, done: true } : t)) : prev);
 
-                if (balance !== undefined) {
-                    queryClient.setQueryData(['user', tgUser?.id], prev =>
-                      prev ? { ...prev, balance } : prev);
+                if (balance != null) {
+                    queryClient.setQueryData<DbUser>(['dbUser', tgUser!.id, webApp?.initDataUnsafe?.user?.id ? /*ip*/ '' : ''], prev =>
+                      prev ? { ...prev, balance } : prev
+                    )
                   }
 
                 alert(`Задание подтверждено, получено +${reward} USDT`);
