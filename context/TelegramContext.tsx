@@ -26,12 +26,17 @@ interface TelegramCtx {
     tgUser: TgUser | null;
     dbUser: DbUser | null | undefined;
     webApp: typeof window.Telegram.WebApp | null;
+    dbUserLoading: boolean;
+  dbUserError: unknown;
 }
 
 const TelegramContext = createContext<TelegramCtx>({
     tgUser: null,
     dbUser: null,
     webApp: null,
+    dbUserLoading: false,
+  dbUserError: null,
+    
 });
 
 
@@ -80,7 +85,11 @@ export const TelegramProvider = ({ children }: { children: ReactNode }) => {
 
     // }, [tgUser, ip]);
 
-    const {data: dbUser} = useQuery({
+    const {
+        data: dbUser,
+        isLoading: dbUserLoading,
+        isError: dbUserError,
+      } = useQuery({
         queryKey: ['dbUser', tgUser?.id],
         enabled: !!tgUser && !!ip && ip !== 'error',
         queryFn: () => 
@@ -98,7 +107,7 @@ export const TelegramProvider = ({ children }: { children: ReactNode }) => {
     })
 
     return (
-        <TelegramContext.Provider value={{ tgUser, dbUser, webApp }}>
+        <TelegramContext.Provider value={{ tgUser, dbUser, webApp, dbUserLoading, dbUserError }}>
             {children}
         </TelegramContext.Provider>
     );
