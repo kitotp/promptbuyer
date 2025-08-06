@@ -89,22 +89,24 @@ export const TelegramProvider = ({ children }: { children: ReactNode }) => {
         data: dbUser,
         isLoading: dbUserLoading,
         isError: dbUserError,
-      } = useQuery({
-        queryKey: ['dbUser', tgUser?.id],
+      } = useQuery<DbUser | null>({
+        queryKey: ['dbUser', tgUser?.id, ip],        
         enabled: !!tgUser && !!ip && ip !== 'error',
-        queryFn: () => 
-            fetch('/api/users', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    user_id: tgUser?.id,
-                    username:tgUser!.username ?? null,
-                    ip,
-                })
-            }).then(r => r.json() as Promise<DbUser>),
-            initialData: null,
-            staleTime: 60000,
-    })
+        queryFn: ({ queryKey }) => {
+          const [, userId, clientIp] = queryKey as [string, number, string];
+          return fetch('/api/users', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              user_id:  userId,
+              username: tgUser!.username ?? null,
+              ip:       clientIp,
+            }),
+          }).then(r => r.json() as Promise<DbUser>);
+        },
+        initialData: null,
+        staleTime: 60_000,
+      });
 
     return (
         <TelegramContext.Provider value={{ tgUser, dbUser, webApp, dbUserLoading, dbUserError }}>
