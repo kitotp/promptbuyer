@@ -1,4 +1,4 @@
-import type Task from "@/types/task";
+import type Task from "@/app/types/task";
 
 
 export async function fetchTasks(userId: number): Promise<(Task & { done: boolean })[]> {

@@ -1,6 +1,6 @@
 // components/TaskCard.tsx
 import React from 'react'
-import type Task from '@/types/task'
+import type Task from '@/app/types/task'
 import Link from 'next/link'
 
 interface TaskWithDone extends Task {

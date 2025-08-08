@@ -4,7 +4,7 @@ import TaskCard from "./TaskCard";
 import { useQuery } from "@tanstack/react-query";
 import { fetchTasks } from "@/app/queries/tasksQuery";
 import { useTelegram } from "@/context/TelegramContext";
-import type Task from "@/types/task";
+import type Task from "@/app/types/task";
 
 type TaskWithDone = Task & { done: boolean }
 

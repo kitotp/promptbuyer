@@ -5,7 +5,8 @@ import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import type Task from '@/types/task';
+import type Task from '@/app/types/task';
+import type DbUser from '@/app/types/dbUser';
 import { useTelegram } from '@/context/TelegramContext';
 import { useRouter } from 'next/navigation';
 
@@ -68,9 +69,9 @@ export default function TaskDetails() {
                     prev ? prev.map((t) => (t.id === task?.id ? { ...t, done: true } : t)) : prev);
 
                 if (balance !== undefined) {
-                    queryClient.setQueryData(['user', tgUser?.id], prev =>
-                      prev ? { ...prev, balance } : prev);
-                  }
+                    queryClient.setQueryData<DbUser>(['dbUser', tgUser?.id], prev =>
+                        prev ? { ...prev, balance } : prev);
+                }
 
                 alert(`Задание подтверждено, получено +${reward} USDT`);
                 router.push('/tasks')
