@@ -2,12 +2,13 @@
 
 import { useTelegram } from '@/context/TelegramContext'
 import React, { useEffect, useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { fetchDbUser } from '@/app/queries/dbUserQuery'
 import type DbUser from '@/app/types/dbUser'
 
 export default function ProfilePage() {
   const { tgUser } = useTelegram()
+  const queryClient = useQueryClient();
 
   const { data: dbUser, isLoading } = useQuery<DbUser>({
     queryKey: ['dbUser', tgUser?.id],
@@ -70,7 +71,10 @@ export default function ProfilePage() {
         }),
       })
       const data = await res.json()
+      queryClient.setQueryData<DbUser>(['dbUser', tgUser?.id], (prev) =>
+        prev ? { ...prev, balance: 0 } : prev)
       if (!res.ok) throw new Error(data.error)
+
       alert('✅ Выплата создана! ID: ' + data.data?.txn_id)
     } catch (err) {
       alert('Ошибка: ' + (err as Error).message)
