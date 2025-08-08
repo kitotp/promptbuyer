@@ -65,6 +65,7 @@ export default function ProfilePage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
+          user_id: tgUser?.id,
           currency: 'TON',
           address: wallet,
           amount: dbUser?.balance,
