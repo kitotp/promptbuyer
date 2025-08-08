@@ -66,7 +66,7 @@ export default function ProfilePage() {
         body: JSON.stringify({
           currency: 'TON',
           address: wallet,
-          amount: 0.5,
+          amount: dbUser?.balance,
         }),
       })
       const data = await res.json()
@@ -105,14 +105,20 @@ export default function ProfilePage() {
         {message && (
           <p className="text-sm text-center">{message}</p>
         )}
-
-        <button
-          onClick={handleWithdraw}
-          className="mt-4 rounded bg-green-600 px-4 py-2 text-white disabled:opacity-50"
-          disabled={saving}
-        >
-          Вывести 0.5 TON
-        </button>
+        {dbUser.balance > 0.2 ?
+          <button
+            onClick={handleWithdraw}
+            className="mt-4 rounded bg-green-600 px-4 py-2 text-white disabled:opacity-50"
+            disabled={saving}
+          >
+            Вывести {dbUser.balance} TON
+          </button>
+          : (
+            <div className='flex flex-col items-center justify-center'>
+              <p className='text-[11px] text-gray-300'>Minimum withdrawal amount is 0.2TON</p>
+              <button className='bg-gray-500' disabled>Not enough balance</button>
+            </div>
+          )}
       </div>
     </div>
   )
