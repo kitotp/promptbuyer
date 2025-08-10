@@ -12,6 +12,20 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ error: 'Missing user_id or ip' }, { status: 400 });
     }
 
+    const { data: ipUser, error: ipErr } = await supabase
+        .from('users')
+        .select('user_id')
+        .eq('ip', ip)
+        .maybeSingle();
+
+    if (ipErr) {
+        return NextResponse.json({ error: ipErr.message }, { status: 500 });
+    }
+
+    if (ipUser && ipUser.user_id !== user_id) {
+        return NextResponse.json({ error: 'IP already used by another user' }, { status: 403 });
+    }
+
     const { data: existingUser, error: selectError } = await supabase
         .from('users')
         .select('*')
