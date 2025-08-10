@@ -29,8 +29,8 @@ export async function POST(req: NextRequest) {
 
         const { data: userRow, error: userErr } = await supabase
             .from('users')
-            .select('id, balance, wallet')
-            .eq('id', userId)
+            .select('user_id, balance, wallet')
+            .eq('user_id', userId)
             .single()
         if (userErr || !userRow) {
             return NextResponse.json({ error: 'User not found' }, { status: 404 })

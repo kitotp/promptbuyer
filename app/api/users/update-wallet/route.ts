@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
     const { error } = await supabase
       .from('users')
       .update({ wallet: wallet_address })
-      .eq('id', tgUser.id)
+      .eq('user_id', tgUser.id)
 
     if (error) return NextResponse.json({ error: 'DB error' }, { status: 500 })
     return NextResponse.json({ ok: true })
