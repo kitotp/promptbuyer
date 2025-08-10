@@ -16,6 +16,13 @@ export default function ProfilePage() {
     enabled: !!tgUser,
   })
 
+  function copy() {
+    const init = getTelegramInitData()
+    navigator.clipboard.writeText(init)
+      .then(() => alert('initData скопирован!'))
+      .catch(() => alert('Не удалось скопировать'))
+  }
+
   const [wallet, setWallet] = useState('')
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
@@ -128,6 +135,7 @@ export default function ProfilePage() {
             </div>
           )}
       </div>
+      <button onClick={copy}>Скопировать initData</button>
     </div>
   )
 }
