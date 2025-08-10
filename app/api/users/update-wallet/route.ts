@@ -1,29 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { z } from 'zod'
+import { verifyTelegramInitData } from '@/app/lib/telegram/verify'
 import { supabase } from '@/app/lib/supabase/server'
 
+const schema = z.object({ wallet_address: z.string().min(10).max(200) })
+
 export async function POST(req: NextRequest) {
-  const { user_id, wallet_address } = (await req.json()) as {
-    user_id?: number
-    wallet_address?: string
+  try {
+    const initData = req.headers.get('X-Telegram-Init') || ''
+    const tgUser = verifyTelegramInitData(initData, process.env.TELEGRAM_BOT_TOKEN!)
+    if (!tgUser) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+
+    const body = await req.json()
+    const parsed = schema.safeParse(body)
+    if (!parsed.success) return NextResponse.json({ error: 'Bad request' }, { status: 400 })
+
+    const { wallet_address } = parsed.data
+    const { error } = await supabase
+      .from('users')
+      .update({ wallet: wallet_address })
+      .eq('id', tgUser.id)
+
+    if (error) return NextResponse.json({ error: 'DB error' }, { status: 500 })
+    return NextResponse.json({ ok: true })
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : 'Internal'
+    return NextResponse.json({ error: message }, { status: 500 })
   }
-
-  if (!user_id || !wallet_address) {
-    return NextResponse.json(
-      { error: 'Missing user_id or wallet_address' },
-      { status: 400 }
-    )
-  }
-
-  const { data, error } = await supabase
-    .from('users')
-    .update({ wallet: wallet_address })
-    .eq('user_id', user_id)
-    .select('wallet')
-    .single()
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
-  }
-
-  return NextResponse.json({ wallet: data.wallet })
 }

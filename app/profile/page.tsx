@@ -29,6 +29,10 @@ export default function ProfilePage() {
   if (isLoading || !dbUser) {
     return <div>Загрузка профиля…</div>
   }
+  function getTelegramInitData(): string {
+    if (typeof window === 'undefined') return ''
+    return window.Telegram?.WebApp?.initData ?? ''
+  }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
@@ -39,11 +43,11 @@ export default function ProfilePage() {
     try {
       const res = await fetch('/api/users/update-wallet', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          user_id: tgUser.id,
-          wallet_address: wallet.trim(),
-        }),
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Telegram-Init': getTelegramInitData()
+        },
+        body: JSON.stringify({ wallet_address: wallet.trim() })
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || 'Ошибка при сохранении')
@@ -63,20 +67,19 @@ export default function ProfilePage() {
     try {
       const res = await fetch('/api/withdraw', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Telegram-Init': getTelegramInitData(),
+        },
         body: JSON.stringify({
-          user_id: tgUser?.id,
           currency: 'TON',
           address: wallet,
-          amount: dbUser?.balance,
         }),
       })
       const data = await res.json()
-      queryClient.setQueryData<DbUser>(['dbUser', tgUser?.id], (prev) =>
-        prev ? { ...prev, balance: 0 } : prev)
-      if (!res.ok) throw new Error(data.error)
-
-      alert('✅ Выплата создана! ID: ' + data.data?.txn_id)
+      if (!res.ok) throw new Error(data.error || 'Ошибка')
+      alert('✅ Выплата создана! ID: ' + data.withdrawal_id)
+      queryClient.invalidateQueries({ queryKey: ['dbUser', tgUser?.id] })
     } catch (err) {
       alert('Ошибка: ' + (err as Error).message)
     }
