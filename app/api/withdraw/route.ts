@@ -20,10 +20,16 @@ export async function POST(req: NextRequest) {
         }
         const userId = tgUser.id
 
-        const parsed = bodySchema.safeParse(await req.json())
-        if (!parsed.success) {
-            return NextResponse.json({ error: 'Bad request' }, { status: 400 })
+        const raw = await req.text()
+        let json: unknown
+        try { json = JSON.parse(raw) } catch {
+            return NextResponse.json({ error: 'Invalid JSON', raw }, { status: 400 })
         }
+        const parsed = bodySchema.safeParse(json)
+        if (!parsed.success) {
+            return NextResponse.json({ error: 'Bad request', details: parsed.error.flatten(), got: json }, { status: 400 })
+        }
+
         const { currency, address } = parsed.data
         const requestedAmount = parsed.data.amount
 
