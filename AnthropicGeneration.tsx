@@ -166,16 +166,9 @@ async function callClaude(prompt: string): Promise<string> {
   return msg.content.map(b => (b.type === "text" ? b.text : "")).join("").trim();
 }
 
-// ===== main =====
-(async () => {
-  try {
-    const plan = buildSinglePlan();
-    const prompt = buildPrompt(plan);
-    const output = await callClaude(prompt);
-
-    console.log(output, "\n");
-  } catch (err) {
-    console.error(err);
-    process.exit(1);
-  }
-})();
+export async function generateCopyText(userId?: number ): Promise<string> {
+  const plan = buildSinglePlan();
+  const prompt = buildPrompt(plan) + `\n\nGenerated for user ID: ${userId ?? "unknown"}.`;
+  const output = await callClaude(prompt);
+  return output;
+}

@@ -1,39 +1,38 @@
 import { supabase } from "@/app/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
+import { generateCopyText } from "@/AnthropicGeneration";
 
+const BASE_TASK = {
+    id: 1,
+    title: 'Основное задание',
+    description: 'Выполните это задание, следуя инструкциям ниже.',
+    reward: 1,
+};
 
 export async function GET(req: NextRequest) {
 
-    const url = req.nextUrl
-    const userIdParam = url.searchParams.get('user_id')
-    const user_id = userIdParam ? Number(userIdParam) : null
+    const url = req.nextUrl;
+    const userIdParam = url.searchParams.get('user_id');
+    const user_id = userIdParam ? Number(userIdParam) : undefined;
+    const copy_text = await generateCopyText(user_id);
 
-    const { data: tasks, error: tasksErr } = await supabase
-        .from('tasks')
-        .select('*')
 
-    if (tasksErr) {
-        return NextResponse.json({ error: tasksErr.message }, { status: 500 })
-    }
+    let done = false;
 
-    const doneTaskIds = new Set<number>()
     if (user_id) {
         const { data: subs, error: subsErr } = await supabase
             .from('user_task_submissions')
             .select('task_id')
             .eq('user_id', user_id)
+            .eq('task_id', BASE_TASK.id);
 
-        if (!subsErr && subs) {
-            subs.forEach((s) => {
-                doneTaskIds.add(Number(s.task_id))
-            })
+
+        if (!subsErr && subs && subs.length > 0) {
+            done = true;
         }
     }
 
-    const enriched = tasks.map((t) => ({
-        ...t,
-        done: doneTaskIds.has(t.id)
-    }))
+    const task = { ...BASE_TASK, copy_text, done };
 
-    return NextResponse.json(enriched)
+    return NextResponse.json([task]);
 }
