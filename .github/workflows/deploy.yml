@@ -16,6 +16,7 @@ jobs:
       OPENAI_API_KEY:             ${{ secrets.OPENAI_API_KEY }}
       PLISIO_API_KEY:             ${{ secrets.PLISIO_API_KEY}}
       TELEGRAM_BOT_TOKEN:             ${{ secrets.TELEGRAM_BOT_TOKEN}}
+      ANTHROPIC_API_KEY:             ${{ secrets.ANTHROPIC_API_KEY}}
 
 
     steps:
@@ -32,6 +33,7 @@ jobs:
           TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN}}
           NEXT_PUBLIC_SUPABASE_URL=${{ secrets.SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY=${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+          ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY}}
           EOF
 
       - name: Setup Node.js
