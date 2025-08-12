@@ -166,7 +166,7 @@ async function callClaude(prompt: string): Promise<string> {
   return msg.content.map(b => (b.type === "text" ? b.text : "")).join("").trim();
 }
 
-export async function generateCopyText(userId?: number ): Promise<string> {
+export async function generateCopyText(userId?: number): Promise<string> {
   const plan = buildSinglePlan();
   const prompt = buildPrompt(plan) + `\n\nGenerated for user ID: ${userId ?? "unknown"}.`;
   const output = await callClaude(prompt);

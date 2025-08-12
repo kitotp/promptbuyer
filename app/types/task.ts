@@ -4,7 +4,7 @@ type Task = {
     title: string,
     description: string,
     reward: number,
-    copy_text: string
+    copy_text?: string
 }
 
 export default Task

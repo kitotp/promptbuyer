@@ -3,7 +3,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect} from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import type Task from '@/app/types/task';
 import type DbUser from '@/app/types/dbUser';
@@ -16,6 +16,8 @@ export default function TaskDetails() {
     const [file, setFile] = useState<File | null>(null);
     const [preview, setPreview] = useState<string | null>(null);
     const [submitting, setSubmitting] = useState(false);
+    const [copyText, setCopyText] = useState('');
+    const [copyLoading, setCopyLoading] = useState(true);
 
     const queryClient = useQueryClient();
     const { tgUser } = useTelegram();
@@ -32,6 +34,28 @@ export default function TaskDetails() {
         setFile(f);
         setPreview(URL.createObjectURL(f));
     };
+
+    useEffect(() => {
+        if (!tgUser || !task) return;
+        let active = true;
+        const fetchCopy = async () => {
+            try {
+                setCopyLoading(true);
+                const resp = await fetch(`/api/tasks/${task.id}/copy?user_id=${tgUser.id}`);
+                if (!resp.ok) throw new Error('Failed to generate');
+                const data = (await resp.json()) as { copy_text: string };
+                if (active) setCopyText(data.copy_text);
+            } catch {
+                if (active) setCopyText('Не удалось сгенерировать текст');
+            } finally {
+                if (active) setCopyLoading(false);
+            }
+        };
+        fetchCopy();
+        return () => {
+            active = false;
+        };
+    }, [tgUser, task]);
 
     const onDrop = (e: React.DragEvent<HTMLLabelElement>) => {
         e.preventDefault();
@@ -88,7 +112,14 @@ export default function TaskDetails() {
     }
 
     return (
-        <div className="mx-auto max-w-xl space-y-6 px-4 py-6">
+        <div className="relative mx-auto max-w-xl space-y-6 px-4 py-6 pb-40 min-h-screen">
+            {copyLoading && (
+                <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/50">
+                    <div className="rounded-xl bg-white px-6 py-4 text-center">
+                        Текст для вашего задания генерируется…
+                    </div>
+                </div>
+            )}
             <Link
                 href="/tasks"
                 className="inline-block rounded-xl border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50"
@@ -102,7 +133,7 @@ export default function TaskDetails() {
             </header>
 
             <section className="rounded-xl bg-gray-100 p-4">
-                <p className="select-all text-sm">{task.copy_text}</p>
+            <p className="select-all text-sm">{copyText}</p>
             </section>
 
             <section className="space-y-4">
