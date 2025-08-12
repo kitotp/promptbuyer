@@ -1,6 +1,6 @@
 'use client';
 
-import { useQueryClient } from '@tanstack/react-query';
+import {useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
@@ -9,6 +9,8 @@ import type Task from '@/app/types/task';
 import type DbUser from '@/app/types/dbUser';
 import { useTelegram } from '@/context/TelegramContext';
 import { useRouter } from 'next/navigation';
+import { fetchCopyText } from '@/app/queries/copyTextQuery';
+
 
 export default function TaskDetails() {
     const router = useRouter()
@@ -26,6 +28,12 @@ export default function TaskDetails() {
         if (isNaN(idNum)) return null;
         return tasks?.find((t) => t.id === idNum) ?? null;
     }, [tasks, taskId]);
+
+    const { data: copyText, isLoading: loadingCopy } = useQuery({
+        queryKey: ['copyText', task?.id, tgUser?.id],
+        queryFn: () => fetchCopyText(task!.id, tgUser?.id),
+        enabled: !!task && !!tgUser,
+    });
 
     const handleSelect = (f: File | null) => {
         if (!f) return;
@@ -89,6 +97,11 @@ export default function TaskDetails() {
 
     return (
         <div className="mx-auto max-w-xl space-y-6 px-4 py-6">
+            {loadingCopy && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 text-white">
+                    Ваш промпт грузится...
+                </div>
+            )}
             <Link
                 href="/tasks"
                 className="inline-block rounded-xl border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50"
@@ -102,7 +115,7 @@ export default function TaskDetails() {
             </header>
 
             <section className="rounded-xl bg-gray-100 p-4">
-                <p className="select-all text-sm">{task.copy_text}</p>
+                <p className="select-all text-sm">{copyText}</p>
             </section>
 
             <section className="space-y-4">

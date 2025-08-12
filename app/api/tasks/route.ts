@@ -1,6 +1,5 @@
 import { supabase } from "@/app/lib/supabase/server";
 import { NextRequest, NextResponse } from "next/server";
-import { generateCopyText } from "@/AnthropicGeneration";
 
 const BASE_TASK = {
     id: 1,
@@ -14,7 +13,6 @@ export async function GET(req: NextRequest) {
     const url = req.nextUrl;
     const userIdParam = url.searchParams.get('user_id');
     const user_id = userIdParam ? Number(userIdParam) : undefined;
-    const copy_text = await generateCopyText(user_id);
 
 
     let done = false;
@@ -32,7 +30,7 @@ export async function GET(req: NextRequest) {
         }
     }
 
-    const task = { ...BASE_TASK, copy_text, done };
+    const task = { ...BASE_TASK, done };
 
     return NextResponse.json([task]);
 }
