@@ -3,7 +3,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect, useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import type Task from '@/app/types/task';
 import type DbUser from '@/app/types/dbUser';
@@ -17,7 +17,10 @@ export default function TaskDetails() {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [step, setStep] = useState<1 | 2>(1); // \u2192 Добавлен контроль этапов
+  const [step, setStep] = useState<1 | 2>(1); // → Контроль этапов
+  const [showExample, setShowExample] = useState(false); // → Модалка примера
+
+  const closeBtnRef = useRef<HTMLButtonElement | null>(null);
 
   const queryClient = useQueryClient();
   const { tgUser } = useTelegram();
@@ -52,18 +55,32 @@ export default function TaskDetails() {
     try {
       if (!text) return;
       await navigator.clipboard.writeText(text);
-      // Небольшая нотификация
       window?.dispatchEvent(new CustomEvent('copied'));
     } catch (e) {
       alert('Не удалось скопировать. Скопируйте вручную.');
     }
   }
 
+  // Закрытие модалки по ESC и клику на фон
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setShowExample(false);
+    }
+    if (showExample) document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [showExample]);
+
+  function onBackdropClick(e: React.MouseEvent<HTMLDivElement>) {
+    if (e.target === e.currentTarget) setShowExample(false);
+  }
+
+  useEffect(() => {
+    if (showExample) closeBtnRef.current?.focus();
+  }, [showExample]);
+
   if (!task) {
     return (
-      <div className="flex min-h-screen items-center justify-center text-lg">
-        Задание не найдено
-      </div>
+      <div className="flex min-h-screen items-center justify-center text-lg">Задание не найдено</div>
     );
   }
 
@@ -116,9 +133,7 @@ export default function TaskDetails() {
   return (
     <div className="mx-auto max-w-xl space-y-6 px-4 py-6">
       {loadingCopy && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 text-white">
-          Ваш промпт грузится...
-        </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 text-white">Ваш промпт грузится...</div>
       )}
 
       <Link href="/tasks" className="inline-block rounded-xl border border-gray-300 px-4 py-2 text-sm hover:bg-gray-50">
@@ -147,10 +162,7 @@ export default function TaskDetails() {
           <div className="mt-3 rounded-xl bg-gray-100 p-3">
             <code className="block select-all text-sm">{step1Prompt}</code>
             <div className="mt-2 flex gap-2">
-              <button
-                onClick={() => copyToClipboard(step1Prompt)}
-                className="rounded-lg border px-3 py-1 text-sm hover:bg-gray-50"
-              >
+              <button onClick={() => copyToClipboard(step1Prompt)} className="rounded-lg border px-3 py-1 text-sm hover:bg-gray-50">
                 Копировать вопрос
               </button>
             </div>
@@ -158,43 +170,37 @@ export default function TaskDetails() {
         </div>
 
         <div className={`rounded-2xl border p-4 ${step === 1 ? 'opacity-50 pointer-events-none border-dashed' : 'border-gray-200'}`}>
-  <div className="flex items-start justify-between gap-4">
-    <div>
-      <div className="text-xs uppercase tracking-wide text-gray-500">Шаг 2</div>
-      <h3 className="text-lg font-semibold">Отправьте длинный промпт</h3>
-      <p className="mt-2 text-sm text-gray-700">
-        Скопируйте длинный промпт ниже и отправьте его в тот же чат ИИ после ответа на Шаге 1.
-      </p>
-    </div>
-    <button
-      onClick={() => copyToClipboard(copyText)}
-      disabled={!copyText}
-      className="rounded-xl border px-3 py-2 text-sm hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-    >
-      Копировать длинный промпт
-    </button>
-  </div>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <div className="text-xs uppercase tracking-wide text-gray-500">Шаг 2</div>
+              <h3 className="text-lg font-semibold">Отправьте длинный промпт</h3>
+              <p className="mt-2 text-sm text-gray-700">Скопируйте длинный промпт ниже и отправьте его в тот же чат ИИ после ответа на Шаге 1.</p>
+            </div>
+            <button onClick={() => copyToClipboard(copyText)} disabled={!copyText} className="rounded-xl border px-3 py-2 text-sm hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50">
+              Копировать длинный промпт
+            </button>
+          </div>
 
-  <div className="mt-4">
-    <img
-      src="/example.jpg"
-      alt="Пример отправки"
-      className="rounded-lg border border-gray-300 shadow-sm"
-    />
-    <p className="mt-1 text-xs text-gray-500 text-center">Пример правильной отправки</p>
-  </div>
-
-  <div className="mt-3 rounded-xl bg-gray-100 p-3">
-    <p className="select-all whitespace-pre-wrap text-sm">{copyText}</p>
-  </div>
+          <div className="mt-3 rounded-xl bg-gray-100 p-3">
+            <p className="select-all whitespace-pre-wrap text-sm">{copyText}</p>
+          </div>
         </div>
       </section>
 
       {/* Загрузка скриншота */}
       <section className="space-y-4">
         <h2 className="text-lg font-medium">
-            Загрузите скриншот ПОЛНОГО экрана, где видно промпт из шага 2, ответ ИИ и&nbsp;ваш ник Telegram в поле ввода сообщения.
+          Загрузите скриншот ПОЛНОГО экрана, где видно промпт из шага 2, ответ ИИ и&nbsp;ваш ник Telegram в поле ввода сообщения.
         </h2>
+
+        {/* Кнопка-подсказка с модальным окном примера */}
+        <button
+          type="button"
+          onClick={() => setShowExample(true)}
+          className="rounded-lg border px-3 py-1 text-sm hover:bg-gray-50"
+        >
+          Пример фото для отправки
+        </button>
 
         <label
           onDragOver={(e) => e.preventDefault()}
@@ -205,14 +211,7 @@ export default function TaskDetails() {
             <img src={preview} alt="preview" className="h-40 w-auto rounded-lg object-contain" />
           ) : (
             <>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-10 w-10 opacity-60"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
-              >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 opacity-60" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M3 15a4 4 0 0 1 4-4h1m0 0a4 4 0  1 4 4v1m-4-5v12m0 0h12m-12 0H3m13-9l3 3m0 0l-3 3m3-3H9" />
               </svg>
               <span className="text-sm">
@@ -225,14 +224,37 @@ export default function TaskDetails() {
           <input type="file" accept="image/*" className="hidden" onChange={(e) => handleSelect(e.target.files?.[0] ?? null)} />
         </label>
 
-        <button
-          disabled={!file || submitting}
-          onClick={onClickSend}
-          className="w-full rounded-xl bg-emerald-600 px-4 py-3 text-white shadow disabled:cursor-not-allowed disabled:bg-gray-400"
-        >
+        <button disabled={!file || submitting} onClick={onClickSend} className="w-full rounded-xl bg-emerald-600 px-4 py-3 text-white shadow disabled:cursor-not-allowed disabled:bg-gray-400">
           {submitting ? 'Отправляем…' : 'Отправить'}
         </button>
       </section>
+
+      {/* Модальное окно с примером */}
+      {showExample && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+          role="dialog"
+          aria-modal="true"
+          onClick={onBackdropClick}
+        >
+          <div className="relative max-h-[90vh] w-full max-w-4xl overflow-hidden rounded-2xl bg-white shadow-2xl">
+            <div className="flex items-center justify-between border-b px-4 py-3">
+              <h3 className="text-base font-semibold">Пример правильной отправки</h3>
+              <button
+                ref={closeBtnRef}
+                onClick={() => setShowExample(false)}
+                className="rounded-lg border px-2 py-1 text-sm hover:bg-gray-50"
+                aria-label="Закрыть"
+              >
+                Закрыть
+              </button>
+            </div>
+            <div className="max-h-[80vh] overflow-auto p-2">
+              <img src="/example.jpg" alt="Пример скриншота для отправки" className="mx-auto h-auto max-w-full select-none" />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
