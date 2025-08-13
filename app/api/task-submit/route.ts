@@ -48,12 +48,23 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Задание не найдено' }, { status: 404 });
         }
 
-        const prompt = `
-        Answer only "yes" or "no".
-        
-        Criteria:
-        1) The screenshot shows an ChatGPT chat interface where the assistant has already replied to a long prompt ${task.copy_text}.
-        2) The image contain a ChatGPT page with a '${tg_username}' in an input form`
+        const KEYWORDS = [
+            "Carlos", "Saraiva", "Carlos Manuel Saraiva", "Oeiras",
+            "cryptography", "cryptoanarchism", "Carnation Revolution",
+            "1987", "Rua Carlos Saraiva"
+          ];
+          
+          // 2) Компактный и жесткий промпт (без task.copy_text целиком!)
+          const prompt = [
+            'Answer only "yes" or "no".',
+            "",
+            "Approve = ALL of the following are true:",
+            "A) The screenshot shows an AI chat interface (e.g., ChatGPT/Claude) and the ASSISTANT has already replied (assistant message is visible).",
+            `B) The assistant's reply is on-topic: it contains AT LEAST TWO of these keywords (case-insensitive): ${KEYWORDS.join(", ")}.`,
+            `C) The user's identifier "${tg_username}" is visible ANYWHERE in the UI (profile area, sidebar, chat list, message author name, or in the input field).`,
+            "",
+            "Reject if any of A/B/C is not satisfied."
+          ].join("\n");
 
         const completion = await openai.chat.completions.create({
             model: 'gpt-4o-mini',
