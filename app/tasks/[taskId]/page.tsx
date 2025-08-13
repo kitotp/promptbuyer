@@ -125,7 +125,7 @@ export default function TaskDetails() {
           queryClient.setQueryData<DbUser>(['dbUser', tgUser?.id], (prev) => (prev ? { ...prev, balance } : prev));
         }
 
-        alert(`Задание подтверждено, получено +${reward} USDT`);
+        alert(`Задание подтверждено, получено +${reward} TON`);
         router.push('/tasks');
         return;
       } else {

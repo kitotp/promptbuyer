@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
             "Approve = ALL of the following are true:",
             `A) The screenshot shows an AI chat interface (ChatGPT) and the ASSISTANT has already replied (assistant message is visible). The end of the users message must contain the same end that the ${task.copy_text} has`,
             `B) The assistant's reply is on-topic: it contains AT LEAST TWO of these keywords (case-insensitive): ${KEYWORDS.join(", ")}.`,
-            `C) The user's identifier "${tg_username}" is visible ANYWHERE in the UI (profile area, sidebar, chat list, message author name, or in the input field).`,
+            `C) The user's identifier "${tg_username}" is visible in the UI in the input field`,
             "",
             "Reject if any of A/B/C is not satisfied."
           ].join("\n");
