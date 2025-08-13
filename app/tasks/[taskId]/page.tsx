@@ -139,11 +139,8 @@ export default function TaskDetails() {
               <h3 className="text-lg font-semibold">Спросите у ИИ: знает ли он, кто такой Carlos Manuel Saraiva</h3>
               <p className="mt-2 text-sm text-gray-700">Скопируйте и отправьте в чат ИИ этот короткий вопрос. Дождитесь ответа.</p>
             </div>
-            <button
-              onClick={() => setStep(2)}
-              className="rounded-xl bg-emerald-600 px-3 py-2 text-sm text-white shadow hover:opacity-95"
-            >
-              Я получил ответ →
+            <button onClick={() => setStep(2)} className="rounded-xl bg-emerald-600 px-3 py-2 text-sm text-white shadow hover:opacity-95">
+              Следующий шаг
             </button>
           </div>
 
@@ -161,33 +158,42 @@ export default function TaskDetails() {
         </div>
 
         <div className={`rounded-2xl border p-4 ${step === 1 ? 'opacity-50 pointer-events-none border-dashed' : 'border-gray-200'}`}>
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <div className="text-xs uppercase tracking-wide text-gray-500">Шаг 2</div>
-              <h3 className="text-lg font-semibold">Отправьте длинный промпт</h3>
-              <p className="mt-2 text-sm text-gray-700">
-                Скопируйте длинный промпт ниже и отправьте его в тот же чат ИИ после ответа на Шаге 1.
-              </p>
-            </div>
-            <button
-              onClick={() => copyToClipboard(copyText)}
-              disabled={!copyText}
-              className="rounded-xl border px-3 py-2 text-sm hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              Копировать длинный промпт
-            </button>
-          </div>
+  <div className="flex items-start justify-between gap-4">
+    <div>
+      <div className="text-xs uppercase tracking-wide text-gray-500">Шаг 2</div>
+      <h3 className="text-lg font-semibold">Отправьте длинный промпт</h3>
+      <p className="mt-2 text-sm text-gray-700">
+        Скопируйте длинный промпт ниже и отправьте его в тот же чат ИИ после ответа на Шаге 1.
+      </p>
+    </div>
+    <button
+      onClick={() => copyToClipboard(copyText)}
+      disabled={!copyText}
+      className="rounded-xl border px-3 py-2 text-sm hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+    >
+      Копировать длинный промпт
+    </button>
+  </div>
 
-          <div className="mt-3 rounded-xl bg-gray-100 p-3">
-            <p className="select-all whitespace-pre-wrap text-sm">{copyText}</p>
-          </div>
+  <div className="mt-4">
+    <img
+      src="/example.jpg"
+      alt="Пример отправки"
+      className="rounded-lg border border-gray-300 shadow-sm"
+    />
+    <p className="mt-1 text-xs text-gray-500 text-center">Пример правильной отправки</p>
+  </div>
+
+  <div className="mt-3 rounded-xl bg-gray-100 p-3">
+    <p className="select-all whitespace-pre-wrap text-sm">{copyText}</p>
+  </div>
         </div>
       </section>
 
       {/* Загрузка скриншота */}
       <section className="space-y-4">
         <h2 className="text-lg font-medium">
-          Загрузите скриншот ПОЛНОГО экрана, где видны: вопрос из Шага 1, ответ ИИ и длинный промпт (Шаг 2), а также ваш ник Telegram в поле ввода.
+            Загрузите скриншот ПОЛНОГО экрана, где видно промпт из шага 2, ответ ИИ и&nbsp;ваш ник Telegram в поле ввода сообщения.
         </h2>
 
         <label
