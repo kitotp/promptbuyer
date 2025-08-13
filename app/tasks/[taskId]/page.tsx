@@ -276,7 +276,6 @@ export default function TaskDetails() {
             <div className="flex items-center justify-between border-b px-4 py-3">
               <h3 className="text-base font-semibold">Пример правильной отправки</h3>
               <div className="flex items-center gap-2">
-                <a href="/example.jpg" target="_blank" rel="noreferrer" className="rounded-lg border px-2 py-1 text-xs hover:bg-gray-50">Открыть в новой вкладке</a>
                 <button ref={closeBtnRef} onClick={() => setShowExample(false)} className="rounded-lg border px-2 py-1 text-sm hover:bg-gray-50" aria-label="Закрыть">Закрыть</button>
               </div>
             </div>
