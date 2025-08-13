@@ -48,7 +48,12 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: 'Задание не найдено' }, { status: 404 });
         }
 
-        const prompt = `Does the image contain a ChatGPT page with a '${tg_username}' in an input form and a prompt ${task.copy_text} already written as a message and AI has responded to it? Answer only yes or no.`;
+        const prompt = `
+        Answer only "yes" or "no".
+        
+        Criteria:
+        1) The screenshot shows an ChatGPT chat interface where the assistant has already replied to a long prompt ${task.copy_text}.
+        2) The image contain a ChatGPT page with a '${tg_username}' in an input form`
 
         const completion = await openai.chat.completions.create({
             model: 'gpt-4o-mini',
