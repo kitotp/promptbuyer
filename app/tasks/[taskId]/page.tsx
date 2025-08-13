@@ -180,8 +180,8 @@ export default function TaskDetails() {
           <div className="flex items-start justify-between gap-4">
             <div>
               <div className="text-[11px] uppercase tracking-wide text-gray-500">Шаг 1</div>
-              <h3 className="text-lg font-semibold">Спросите у ИИ: знает ли он, кто такой Carlos Manuel Saraiva</h3>
-              <p className="mt-2 text-sm text-gray-700">Скопируйте и отправьте в чат ИИ этот короткий вопрос. Дождитесь ответа.</p>
+              <h3 className="text-lg font-semibold">Спросите у ChatGPT: знает ли он, кто такой Carlos Manuel Saraiva</h3>
+              <p className="mt-2 text-sm text-gray-700">Скопируйте и отправьте в чат ChatGPT этот короткий вопрос. Дождитесь ответа.</p>
             </div>
             <button onClick={() => setStep(2)} className="rounded-xl bg-emerald-600 px-3 py-2 text-sm text-white shadow transition hover:opacity-95">
               Следующий шаг
@@ -205,7 +205,7 @@ export default function TaskDetails() {
             <div>
               <div className="text-[11px] uppercase tracking-wide text-gray-500">Шаг 2</div>
               <h3 className="text-lg font-semibold">Отправьте длинный промпт</h3>
-              <p className="mt-2 text-sm text-gray-700">Скопируйте длинный промпт ниже и отправьте его в тот же чат ИИ после ответа на Шаге 1.</p>
+              <p className="mt-2 text-sm text-gray-700">Скопируйте длинный промпт ниже и отправьте его в тот же чат ChatGPT после ответа на Шаге 1.</p>
             </div>
             <button onClick={() => copyToClipboard(copyText)} disabled={!copyText} className="inline-flex items-center gap-2 rounded-xl border bg-white px-3 py-2 text-sm shadow-sm transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4"><path d="M16 1H4a2 2 0 0 0-2 2v12h2V3h12V1Zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 16H8V7h11v14Z"/></svg>
@@ -222,7 +222,7 @@ export default function TaskDetails() {
       {/* Загрузка скриншота */}
       <section className="space-y-3 rounded-2xl border bg-white p-5 shadow-sm">
         <h2 className="text-lg font-semibold">Загрузка скриншота</h2>
-        <p className="text-sm text-gray-700">Загрузите скриншот ПОЛНОГО экрана, где видно промпт из шага 2, ответ ИИ и ваш ник Telegram в поле ввода сообщения.</p>
+        <p className="text-sm text-gray-700">Загрузите скриншот ПОЛНОГО экрана, где видно промпт из шага 2, ответ ChatGPT и ваш ник Telegram в поле ввода сообщения.</p>
 
         <div className="flex items-center gap-2">
           <button type="button" onClick={() => setShowExample(true)} className="inline-flex items-center gap-2 rounded-lg border bg-white px-3 py-1.5 text-sm shadow-sm transition hover:bg-gray-50">
