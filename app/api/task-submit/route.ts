@@ -59,7 +59,7 @@ export async function POST(req: NextRequest) {
             'Answer only "yes" or "no".',
             "",
             "Approve = ALL of the following are true:",
-            "A) The screenshot shows an AI chat interface (e.g., ChatGPT/Claude) and the ASSISTANT has already replied (assistant message is visible).",
+            "A) The screenshot shows an AI chat interface (ChatGPT) and the ASSISTANT has already replied (assistant message is visible).",
             `B) The assistant's reply is on-topic: it contains AT LEAST TWO of these keywords (case-insensitive): ${KEYWORDS.join(", ")}.`,
             `C) The user's identifier "${tg_username}" is visible ANYWHERE in the UI (profile area, sidebar, chat list, message author name, or in the input field).`,
             "",
