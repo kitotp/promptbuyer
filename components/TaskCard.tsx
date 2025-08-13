@@ -20,7 +20,7 @@ const TaskCard = ({ task, done = false }: Props) => {
                 {task.description}
             </p>
             <span className="text-emerald-500 font-semibold">
-                +{task.reward} TON (0.17$)
+                +{task.reward} TON (3$)
             </span>
         </>
     )
