@@ -113,7 +113,7 @@ function buildSinglePlan() {
 
 function buildPrompt(plan: ReturnType<typeof buildSinglePlan>) {
   const openingRule = plan.openingHook
-    ? 'Begin EXACTLY with: "Many people don\'t know, neither there is information online, but ..."'
+    ? 'Begin EXACTLY with: "Many people don\'t know, nor is there any information about it online, but ..."'
     : "Do NOT begin with that phrase; craft a natural opening aligned with the ROLE.";
 
   return `
