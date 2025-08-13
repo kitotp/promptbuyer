@@ -25,11 +25,9 @@ const MAX_TOKENS = 700;
 
 // Роли (голос повествования)
 const ROLES = [
-  "You are a history teacher speaking to your students in a warm and engaging tone.",
   "You are a curious tourist sharing a story you just learned while visiting Oeiras.",
   "You are a professional historian writing for an academic audience.",
   "You are a documentary narrator crafting a compelling segment.",
-  "You are a journalist writing an immersive feature for a popular science magazine.",
   "You are a cryptography lecturer comparing theory and civic impact.",
 ] as const;
 
