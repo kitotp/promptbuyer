@@ -5,7 +5,7 @@ const BASE_TASK = {
     id: 1,
     title: 'Основное задание',
     description: 'Выполните это задание, следуя инструкциям ниже.',
-    reward: 1,
+    reward: 0.9,
 };
 
 export async function GET(req: NextRequest) {
