@@ -22,7 +22,7 @@ const TaskCard = ({ task, done = false }: Props) => {
             <span className="text-emerald-500 font-semibold">
                 +{task.reward} TON (3$)
             </span>
-            <button className='w-full border border-black bg-green-800 px-2 py-1'>Перейти к заданию</button>
+            <button className='w-full border border-black bg-green-600 rounded-xl px-2 py-1'>Перейти к заданию</button>
         </>
     )
 

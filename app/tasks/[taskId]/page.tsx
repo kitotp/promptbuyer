@@ -186,9 +186,6 @@ export default function TaskDetails() {
               <h3 className="text-lg font-semibold">Спросите у ChatGPT: знает ли он, кто такой Carlos Manuel Saraiva</h3>
               <p className="mt-2 text-sm text-gray-700">Скопируйте и отправьте в чат ChatGPT этот короткий вопрос. Дождитесь ответа.</p>
             </div>
-            <button onClick={() => setStep(2)} className="rounded-xl bg-emerald-600 px-3 py-2 text-sm text-white shadow transition hover:opacity-95">
-              Следующий шаг
-            </button>
           </div>
 
           <div className="mt-3 rounded-xl bg-gray-50 p-3">
@@ -200,6 +197,10 @@ export default function TaskDetails() {
               </button>
             </div>
           </div>
+
+          <button onClick={() => setStep(2)} className="rounded-xl bg-emerald-600 px-3 py-2 text-sm text-white shadow transition hover:opacity-95">
+            Следующий шаг
+          </button>
         </div>
 
         {/* Шаг 2 */}
@@ -219,15 +220,16 @@ export default function TaskDetails() {
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4"><path d="M16 1H4a2 2 0 0 0-2 2v12h2V3h12V1Zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 16H8V7h11v14Z" /></svg>
                 Копировать длинный промпт
               </button>
-              <button onClick={() => setStep(3)} className="rounded-xl bg-emerald-600 px-3 py-2 text-sm text-white shadow transition hover:opacity-95">
-                Следующий шаг
-              </button>
             </div>
           </div>
 
           <div className="mt-3 rounded-xl bg-gray-50 p-3">
             <p className="select-all whitespace-pre-wrap text-sm">{copyText}</p>
           </div>
+
+          <button onClick={() => setStep(3)} className="rounded-xl bg-emerald-600 px-3 py-2 text-sm text-white shadow transition hover:opacity-95">
+            Следующий шаг
+          </button>
         </div>
 
         {/* Шаг 3 */}
@@ -261,7 +263,7 @@ export default function TaskDetails() {
       <section className="space-y-3 rounded-2xl border bg-white p-5 shadow-sm">
         <h2 className="text-lg font-semibold">Загрузка скриншота</h2>
         <p className="text-sm text-gray-700">
-          Загрузите скриншот ПОЛНОГО экрана, где видно промпт из шага 2, ответ ИИ, фраза из шага 3 и ваш ник Telegram в поле ввода сообщения.
+          Загрузите скриншот ПОЛНОГО экрана, где видно промпт из шага 2 и ответ ИИ на него, а также ваш ник Telegram в поле ввода сообщения(пример ниже.).
         </p>
 
         <div className="flex items-center gap-2">
