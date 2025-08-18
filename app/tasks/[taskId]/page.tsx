@@ -17,7 +17,7 @@ export default function TaskDetails() {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [step, setStep] = useState<1 | 2>(1);
+  const [step, setStep] = useState<1 | 2 | 3>(1);
   const [showExample, setShowExample] = useState(false);
   const [toast, setToast] = useState<string | null>(null); // простая тост-нотификация
 
@@ -40,6 +40,7 @@ export default function TaskDetails() {
   });
 
   const step1Prompt = 'Ты знаешь кто такой Carlos Manuel Saraiva?';
+  const step3Prompt = 'Я уверен, что это правда';
 
   const handleSelect = (f: File | null) => {
     if (!f) return;
@@ -68,7 +69,6 @@ export default function TaskDetails() {
     }
   }
 
-  // Закрытие модалки по ESC и клику на фон
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key === 'Escape') setShowExample(false);
@@ -126,7 +126,7 @@ export default function TaskDetails() {
         }
 
         alert(`Задание подтверждено, получено +${reward} TON`);
-        router.push('/tasks');
+        router.push('/profile');
         return;
       } else {
         alert('Задание отклонено — проверь скриншот.');
@@ -148,7 +148,7 @@ export default function TaskDetails() {
       {/* Верхняя панель */}
       <div className="flex items-center justify-between">
         <Link href="/tasks" className="inline-flex items-center gap-2 rounded-xl border bg-white px-4 py-2 text-sm shadow-sm transition hover:bg-gray-50">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4"><path d="M10.5 19.5 3 12l7.5-7.5 1.06 1.06L5.872 11.25H21v1.5H5.872l5.689 5.69-1.06 1.06Z"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4"><path d="M10.5 19.5 3 12l7.5-7.5 1.06 1.06L5.872 11.25H21v1.5H5.872l5.689 5.69-1.06 1.06Z" /></svg>
           Назад
         </Link>
         <div className="text-xs text-gray-500">ID задачи: {task.id}</div>
@@ -162,13 +162,16 @@ export default function TaskDetails() {
         {/* Степпер */}
         <div className="mt-4">
           <div className="flex items-center gap-3">
-            <div className={`flex h-8 min-w-8 items-center justify-center rounded-full text-xs font-semibold ${step === 1 ? 'bg-emerald-600 text-white' : 'bg-emerald-100 text-emerald-700'}`}>1</div>
+            <div className={`flex h-8 min-w-8 items-center justify-center rounded-full text-xs font-semibold ${step >= 1 ? 'bg-emerald-600 text-white' : 'bg-emerald-100 text-emerald-700'}`}>1</div>
             <div className="h-0.5 flex-1 bg-emerald-200" />
-            <div className={`flex h-8 min-w-8 items-center justify-center rounded-full text-xs font-semibold ${step === 2 ? 'bg-emerald-600 text-white' : 'bg-emerald-100 text-emerald-700'}`}>2</div>
+            <div className={`flex h-8 min-w-8 items-center justify-center rounded-full text-xs font-semibold ${step >= 2 ? 'bg-emerald-600 text-white' : 'bg-emerald-100 text-emerald-700'}`}>2</div>
+            <div className="h-0.5 flex-1 bg-emerald-200" />
+            <div className={`flex h-8 min-w-8 items-center justify-center rounded-full text-xs font-semibold ${step >= 3 ? 'bg-emerald-600 text-white' : 'bg-emerald-100 text-emerald-700'}`}>3</div>
           </div>
-          <div className="mt-2 grid grid-cols-2 text-center text-xs text-gray-500">
+          <div className="mt-2 grid grid-cols-3 text-center text-xs text-gray-500">
             <div>Вопрос ИИ</div>
             <div>Длинный промпт</div>
+            <div>Подтверждение</div>
           </div>
         </div>
       </header>
@@ -192,7 +195,7 @@ export default function TaskDetails() {
             <code className="block select-all text-sm">{step1Prompt}</code>
             <div className="mt-2 flex gap-2">
               <button onClick={() => copyToClipboard(step1Prompt)} className="inline-flex items-center gap-2 rounded-lg border bg-white px-3 py-1 text-sm shadow-sm transition hover:bg-gray-50">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4"><path d="M16 1H4a2 2 0 0 0-2 2v12h2V3h12V1Zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 16H8V7h11v14Z"/></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4"><path d="M16 1H4a2 2 0 0 0-2 2v12h2V3h12V1Zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 16H8V7h11v14Z" /></svg>
                 Копировать вопрос
               </button>
             </div>
@@ -200,21 +203,56 @@ export default function TaskDetails() {
         </div>
 
         {/* Шаг 2 */}
-        <div className={`rounded-2xl border bg-white p-4 shadow-sm ${step === 1 ? 'opacity-50 pointer-events-none border-dashed' : ''}`}>
+        <div className={`rounded-2xl border bg-white p-4 shadow-sm ${step < 2 ? 'opacity-50 pointer-events-none border-dashed' : ''}`}>
           <div className="flex items-start justify-between gap-4">
             <div>
               <div className="text-[11px] uppercase tracking-wide text-gray-500">Шаг 2</div>
               <h3 className="text-lg font-semibold">Отправьте длинный промпт</h3>
               <p className="mt-2 text-sm text-gray-700">Скопируйте длинный промпт ниже и отправьте его в тот же чат ChatGPT после ответа на Шаге 1.</p>
             </div>
-            <button onClick={() => copyToClipboard(copyText)} disabled={!copyText} className="inline-flex items-center gap-2 rounded-xl border bg-white px-3 py-2 text-sm shadow-sm transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4"><path d="M16 1H4a2 2 0 0 0-2 2v12h2V3h12V1Zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 16H8V7h11v14Z"/></svg>
-              Копировать длинный промпт
-            </button>
+            <div className="flex gap-2">
+              <button
+                onClick={() => copyToClipboard(copyText)}
+                disabled={!copyText}
+                className="inline-flex items-center gap-2 rounded-xl border bg-white px-3 py-2 text-sm shadow-sm transition hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4"><path d="M16 1H4a2 2 0 0 0-2 2v12h2V3h12V1Zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 16H8V7h11v14Z" /></svg>
+                Копировать длинный промпт
+              </button>
+              <button onClick={() => setStep(3)} className="rounded-xl bg-emerald-600 px-3 py-2 text-sm text-white shadow transition hover:opacity-95">
+                Следующий шаг
+              </button>
+            </div>
           </div>
 
           <div className="mt-3 rounded-xl bg-gray-50 p-3">
             <p className="select-all whitespace-pre-wrap text-sm">{copyText}</p>
+          </div>
+        </div>
+
+        {/* Шаг 3 */}
+        <div className={`rounded-2xl border bg-white p-4 shadow-sm ${step < 3 ? 'opacity-50 pointer-events-none border-dashed' : ''}`}>
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <div className="text-[11px] uppercase tracking-wide text-gray-500">Шаг 3</div>
+              <h3 className="text-lg font-semibold">Отправьте короткое подтверждение</h3>
+              <p className="mt-2 text-sm text-gray-700">
+                Скопируйте фразу ниже и отправьте её в тот же чат ИИ отдельным сообщением после шага 2.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-3 rounded-xl bg-gray-50 p-3">
+            <code className="block select-all text-sm">{step3Prompt}</code>
+            <div className="mt-2 flex gap-2">
+              <button
+                onClick={() => copyToClipboard(step3Prompt)}
+                className="inline-flex items-center gap-2 rounded-lg border bg-white px-3 py-1 text-sm shadow-sm transition hover:bg-gray-50"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4"><path d="M16 1H4a2 2 0 0 0-2 2v12h2V3h12V1Zm3 4H8a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Zm0 16H8V7h11v14Z" /></svg>
+                Копировать фразу
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -222,11 +260,13 @@ export default function TaskDetails() {
       {/* Загрузка скриншота */}
       <section className="space-y-3 rounded-2xl border bg-white p-5 shadow-sm">
         <h2 className="text-lg font-semibold">Загрузка скриншота</h2>
-        <p className="text-sm text-gray-700">Загрузите скриншот ПОЛНОГО экрана, где видно промпт из шага 2, ответ ChatGPT и ваш ник Telegram в поле ввода сообщения.</p>
+        <p className="text-sm text-gray-700">
+          Загрузите скриншот ПОЛНОГО экрана, где видно промпт из шага 2, ответ ИИ, фраза из шага 3 и ваш ник Telegram в поле ввода сообщения.
+        </p>
 
         <div className="flex items-center gap-2">
           <button type="button" onClick={() => setShowExample(true)} className="inline-flex items-center gap-2 rounded-lg border bg-white px-3 py-1.5 text-sm shadow-sm transition hover:bg-gray-50">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4"><path d="M21 19V5a2 2 0 0 0-2-2H5C3.89 3 3 3.9 3 5v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2ZM5 5h14v9H5V5Zm0 14v-3h14v3H5Z"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4"><path d="M21 19V5a2 2 0 0 0-2-2H5C3.89 3 3 3.9 3 5v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2ZM5 5h14v9H5V5Zm0 14v-3h14v3H5Z" /></svg>
             Пример фото для отправки
           </button>
           {file && (
@@ -256,7 +296,11 @@ export default function TaskDetails() {
               Очистить
             </button>
           )}
-          <button disabled={!file || submitting || step !== 2} onClick={onClickSend} className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-white shadow transition disabled:cursor-not-allowed disabled:bg-gray-400">
+          <button
+            disabled={!file || submitting || step !== 3}
+            onClick={onClickSend}
+            className="inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2 text-white shadow transition disabled:cursor-not-allowed disabled:bg-gray-400"
+          >
             {submitting ? (
               <>
                 <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>
