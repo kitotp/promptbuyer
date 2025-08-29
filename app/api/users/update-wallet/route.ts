@@ -25,6 +25,22 @@ export async function POST(req: NextRequest) {
     }
 
     const { wallet_address } = parsed.data
+    const { data: existing, error: existErr } = await supabase
+      .from('users')
+      .select('user_id')
+      .eq('wallet', wallet_address)
+      .neq('user_id', tgUser.id)
+      .limit(1)
+      .maybeSingle()
+
+    if (existErr) {
+      return NextResponse.json({ error: existErr.message || 'DB error' }, { status: 500 })
+    }
+
+    if (existing && existing.user_id !== tgUser.id) {
+      await supabase.from('users').update({ banned: true }).eq('user_id', tgUser.id)
+      return NextResponse.json({ error: 'Wallet already used', banned: true }, { status: 403 })
+    }
     const { error } = await supabase
       .from('users')
       .update({ wallet: wallet_address })
