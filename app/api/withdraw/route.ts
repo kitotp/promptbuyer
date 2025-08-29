@@ -35,11 +35,15 @@ export async function POST(req: NextRequest) {
 
         const { data: userRow, error: userErr } = await supabase
             .from('users')
-            .select('user_id, balance, wallet')
+            .select('user_id, balance, wallet, banned')
             .eq('user_id', userId)
             .single()
         if (userErr || !userRow) {
             return NextResponse.json({ error: 'User not found' }, { status: 404 })
+        }
+
+        if (userRow.banned) {
+            return NextResponse.json({ error: 'User banned' }, { status: 403 })
         }
 
         if (userRow.wallet && userRow.wallet !== address) {

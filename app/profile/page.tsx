@@ -10,7 +10,7 @@ export default function ProfilePage() {
   const { tgUser } = useTelegram()
   const queryClient = useQueryClient();
 
-  const { data: dbUser, isLoading } = useQuery<DbUser>({
+  const { data: dbUser, isLoading, error } = useQuery<DbUser>({
     queryKey: ['dbUser', tgUser?.id],
     queryFn: () => fetchDbUser(tgUser!.id, tgUser?.username),
     enabled: !!tgUser,
@@ -26,9 +26,9 @@ export default function ProfilePage() {
     }
   }, [dbUser])
 
-  if (isLoading || !dbUser) {
-    return <div>Загрузка профиля…</div>
-  }
+  if (isLoading) return <div>Загрузка профиля…</div>
+  if (error) return <div className="text-red-500">{(error as Error).message}</div>
+  if (!dbUser) return <div>Пользователь не найден</div>
   function getTelegramInitData(): string {
     if (typeof window === 'undefined') return ''
     return window.Telegram?.WebApp?.initData ?? ''
