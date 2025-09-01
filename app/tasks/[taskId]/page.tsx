@@ -327,7 +327,7 @@ export default function TaskDetails() {
             </div>
             <div className="max-h-[80vh] overflow-auto p-2">
               <img src="/example.jpg" alt="Пример скриншота для отправки" className="mx-auto h-auto max-w-full select-none rounded-lg" />
-              <img src="/example_computer.jpg" alt="Пример скриншота для отправки комп" className="mx-auto h-auto max-w-full select-none rounded-lg" />
+              <img src="/example_computer.png" alt="Пример скриншота для отправки комп" className="mx-auto h-auto max-w-full select-none rounded-lg" />
 
             </div>
           </div>
