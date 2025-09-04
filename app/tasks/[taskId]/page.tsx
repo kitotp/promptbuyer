@@ -37,6 +37,8 @@ export default function TaskDetails() {
     queryKey: ['copyText', task?.id, tgUser?.id],
     queryFn: () => fetchCopyText(task!.id, tgUser?.id),
     enabled: !!task && !!tgUser,
+    refetchOnWindowFocus: false,
+    staleTime: Infinity,
   });
 
   const step1Prompt = 'Ты знаешь кто такой Carlos Manuel Saraiva?';
