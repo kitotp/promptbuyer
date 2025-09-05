@@ -52,10 +52,10 @@ export async function POST(req: NextRequest) {
             "Carlos", "Saraiva", "Carlos Manuel Saraiva", "Oeiras",
             "cryptography", "cryptoanarchism", "Carnation Revolution",
             "1987", "Rua Carlos Saraiva"
-          ];
-          
-          // 2) Компактный и жесткий промпт (без task.copy_text целиком!)
-          const prompt = [
+        ];
+
+        // 2) Компактный и жесткий промпт (без task.copy_text целиком!)
+        const prompt = [
             'Answer only "yes" or "no".',
             "",
             "Approve = ALL of the following are true:",
@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
             `C) The user's identifier "${tg_username}" is visible in the UI in the input field`,
             "",
             "Reject if any of A/B/C is not satisfied."
-          ].join("\n");
+        ].join("\n");
 
         const completion = await openai.chat.completions.create({
             model: 'gpt-4o-mini',
@@ -85,13 +85,24 @@ export async function POST(req: NextRequest) {
             ?.startsWith('yes');
 
         if (approved) {
+            const { data: u, error: uErr } = await supabase
+                .from('users')
+                .select('id')
+                .eq('user_id', tg_user_id)
+                .single();
+
+            if (uErr || !u) {
+                return NextResponse.json({ error: 'Пользователь не найден' }, { status: 404 });
+            }
+
             /* -------- store submission -------- */
             const { error: insErr } = await supabase
                 .from('user_task_submissions')
-                .insert({ user_id: tg_user_id, task_id });
+                .insert({ user_id: u.id, task_id });
 
             if (insErr) {
-                return NextResponse.json({ error: 'Не удалось сохранить сабмишн' }, { status: 500 });
+                console.error('insert error:', insErr);
+                return NextResponse.json({ error: `Не удалось сохранить сабмишн: ${insErr.message}` }, { status: 500 });
             }
 
             const { data: balance, error: rpcErr } = await supabase
