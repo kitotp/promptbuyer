@@ -19,6 +19,7 @@ export default function ProfilePage() {
   const [wallet, setWallet] = useState('')
   const [saving, setSaving] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
+  const [withdrawing, setWithdrawing] = useState(false)
 
   useEffect(() => {
     if (dbUser?.wallet) {
@@ -64,6 +65,7 @@ export default function ProfilePage() {
       alert('Сначала сохраните адрес кошелька')
       return
     }
+    setWithdrawing(true)
     try {
       const res = await fetch('/api/withdraw', {
         method: 'POST',
@@ -82,6 +84,8 @@ export default function ProfilePage() {
       queryClient.invalidateQueries({ queryKey: ['dbUser', tgUser?.id] })
     } catch (err) {
       alert('Ошибка: ' + (err as Error).message)
+    } finally {
+      setWithdrawing(false)
     }
   }
 
@@ -117,9 +121,9 @@ export default function ProfilePage() {
           <button
             onClick={handleWithdraw}
             className="mt-4 rounded bg-green-600 px-4 py-2 text-white disabled:opacity-50"
-            disabled={saving}
+            disabled={saving || withdrawing}
           >
-            Вывести {dbUser.balance} TON
+            {withdrawing ? 'Выводим…' : `Вывести ${dbUser.balance} TON`}
           </button>
           : (
             <div className='flex flex-col items-center justify-center'>
