@@ -266,7 +266,7 @@ export default function TaskDetails() {
       <section className="space-y-3 rounded-2xl border bg-white p-5 shadow-sm">
         <h2 className="text-lg font-semibold">Загрузка скриншота</h2>
         <p className="text-sm text-gray-700">
-          Загрузите скриншот экрана, где видно промпт из шага 2 и ответ ИИ на него, а также ваш ник Telegram в поле ввода сообщения(пример ниже.).
+          Загрузите скриншот экрана, где видно промпт из шага 2 и ответ ИИ на него, а также <span className='font-bold'>ваш ник Telegram</span> в поле ввода сообщения(Смотрите пример ниже.).
         </p>
 
         <div className="flex items-center gap-2">
