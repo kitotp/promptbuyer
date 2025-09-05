@@ -21,8 +21,8 @@ export default function TaskList() {
     })
 
     const { data: tasks = [], isLoading: tasksLoading, error: tasksError } = useQuery<TaskWithDone[]>({
-        queryKey: ['tasks', tgUser?.id],
-        queryFn: () => fetchTasks(tgUser!.id),
+        queryKey: ['tasks', dbUser?.id],
+        queryFn: () => fetchTasks(dbUser!.id),
         enabled: !!tgUser && !!dbUser,
     })
 

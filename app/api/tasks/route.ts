@@ -11,17 +11,17 @@ const BASE_TASK = {
 export async function GET(req: NextRequest) {
 
     const url = req.nextUrl;
-    const userIdParam = url.searchParams.get('user_id');
-    const user_id = userIdParam ? Number(userIdParam) : undefined;
+    const idParam = url.searchParams.get('id');
+    const id = idParam ? Number(idParam) : undefined;
 
 
     let done = false;
 
-    if (user_id) {
+    if (id) {
         const { data: subs, error: subsErr } = await supabase
             .from('user_task_submissions')
             .select('task_id')
-            .eq('user_id', user_id)
+            .eq('user_id', id)
             .eq('task_id', BASE_TASK.id);
 
 

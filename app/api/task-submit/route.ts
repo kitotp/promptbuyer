@@ -14,10 +14,10 @@ export async function POST(req: NextRequest) {
         const file = form.get('file') as File | null;
         const task_id = Number(form.get('task_id'));
         const tg_username = String(form.get('tg_username') ?? '');
-        const tg_user_id = Number(form.get('tg_user_id'));
+        const user_id = Number(form.get('id'));
         const tmpName = form.get('tmp_name') as string | null;
 
-        if (!file || Number.isNaN(task_id) || Number.isNaN(tg_user_id)) {
+        if (!file || Number.isNaN(task_id) || Number.isNaN(user_id)) {
             return NextResponse.json({ error: 'Bad payload' }, { status: 400 });
         }
 
@@ -87,8 +87,8 @@ export async function POST(req: NextRequest) {
         if (approved) {
             const { data: u, error: uErr } = await supabase
                 .from('users')
-                .select('id')
-                .eq('user_id', tg_user_id)
+                .select('id, user_id')
+                .eq('id', user_id)
                 .single();
 
             if (uErr || !u) {
@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
             }
 
             const { data: balance, error: rpcErr } = await supabase
-                .rpc('increment_balance', { p_user_id: tg_user_id, p_reward: task.reward })
+                .rpc('increment_balance', { p_user_id: u.user_id, p_reward: task.reward })
 
             if (rpcErr) return NextResponse.json({ error: 'Не удалось обновить баланс' }, { status: 500 })
 

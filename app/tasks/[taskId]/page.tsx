@@ -25,7 +25,8 @@ export default function TaskDetails() {
 
   const queryClient = useQueryClient();
   const { tgUser } = useTelegram();
-  const tasks = queryClient.getQueryData<Task[]>(['tasks', tgUser?.id]);
+  const dbUser = queryClient.getQueryData<DbUser>(['dbUser', tgUser?.id]);
+  const tasks = queryClient.getQueryData<Task[]>(['tasks', dbUser?.id]);
 
   const task = useMemo(() => {
     const idNum = Number(taskId);
@@ -34,9 +35,9 @@ export default function TaskDetails() {
   }, [tasks, taskId]);
 
   const { data: copyText, isLoading: loadingCopy } = useQuery({
-    queryKey: ['copyText', task?.id, tgUser?.id],
-    queryFn: () => fetchCopyText(task!.id, tgUser?.id),
-    enabled: !!task && !!tgUser,
+    queryKey: ['copyText', task?.id, dbUser?.id],
+    queryFn: () => fetchCopyText(task!.id, dbUser!.id),
+    enabled: !!task && !!dbUser,
     refetchOnWindowFocus: false,
     staleTime: Infinity,
   });
@@ -105,7 +106,7 @@ export default function TaskDetails() {
       form.append('file', file);
       form.append('task_id', String(task?.id));
       form.append('tg_username', tgUser?.username ?? '');
-      form.append('tg_user_id', String(tgUser?.id ?? ''));
+      form.append('id', String(dbUser?.id ?? ''));
       form.append('tmp_name', uuidv4());
 
       const resp = await fetch('/api/task-submit', { method: 'POST', body: form });
@@ -119,7 +120,7 @@ export default function TaskDetails() {
       if (!resp.ok) throw new Error(error || 'Server error');
 
       if (result === 'approved') {
-        queryClient.setQueryData<Task[]>(['tasks', tgUser?.id], (prev) =>
+        queryClient.setQueryData<Task[]>(['tasks', dbUser?.id], (prev) =>
           prev ? prev.map((t) => (t.id === task?.id ? { ...t, done: true } : t)) : prev,
         );
 
